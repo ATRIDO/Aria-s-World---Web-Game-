@@ -109,12 +109,12 @@ button:focus-visible,
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: clamp(12px, 3vw, 40px);
+  gap: clamp(10px, 2vw, 32px);
 }
 
 .mode-card {
-  /* Five cards fit in one row on iPad landscape and laptops; smaller screens wrap them. */
-  width: clamp(120px, 16.5vw, 230px);
+  /* Six cards fit in one row on iPad landscape and laptops; phones show three per row. */
+  width: clamp(106px, 14vw, 210px);
   padding: 0;
   background: none;
   border-radius: 24px;
@@ -1409,21 +1409,15 @@ body:not([data-tool='stamp']) #stamps {
   height: 100%;
 }
 
-#dress .skin { fill: var(--skin); }
-#dress .skin-stroke,
-.dress-ghost .skin-stroke { stroke: var(--skin); }
-#dress .hair,
-.dress-ghost .hair { fill: var(--hair); }
-#dress .eye { fill: var(--eyes); }
-#dress .c1,
-.dress-ghost .c1 { fill: var(--c1, #ff6fae); }
-#dress .c2,
-.dress-ghost .c2 { fill: var(--c2, #ffffff); }
-#dress .c1-stroke,
-.dress-ghost .c1-stroke { stroke: var(--c1, #ff6fae); }
-#dress .c2-stroke,
-.dress-ghost .c2-stroke { stroke: var(--c2, #ffffff); }
-.dress-ghost .skin { fill: var(--skin); }
+/* Doll art colors (dress-up, its drag ghost, and games that use the dolls). */
+:is(#dress, .dress-ghost, #tug) .skin { fill: var(--skin); }
+:is(#dress, .dress-ghost, #tug) .skin-stroke { stroke: var(--skin); }
+:is(#dress, .dress-ghost, #tug) .hair { fill: var(--hair); }
+:is(#dress, .dress-ghost, #tug) .eye { fill: var(--eyes); }
+:is(#dress, .dress-ghost, #tug) .c1 { fill: var(--c1, #ff6fae); }
+:is(#dress, .dress-ghost, #tug) .c2 { fill: var(--c2, #ffffff); }
+:is(#dress, .dress-ghost, #tug) .c1-stroke { stroke: var(--c1, #ff6fae); }
+:is(#dress, .dress-ghost, #tug) .c2-stroke { stroke: var(--c2, #ffffff); }
 
 /* Something just put on bounces in. */
 .dress-doll-stage .layer.pop {
@@ -2025,5 +2019,429 @@ html.resuming body {
 
   html.resuming body {
     animation: none;
+  }
+}
+
+/* ------------------------------------------------------------ Save friends */
+
+.dress-save svg {
+  stroke: #ff5fa8;
+}
+
+.friends-card {
+  max-width: min(94vw, 560px);
+}
+
+.friends-title {
+  width: 44px;
+  height: 44px;
+  fill: #ff6fae;
+  stroke: #5b3a47;
+  stroke-width: 1.5;
+}
+
+.friend-slots {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+.friend-cell {
+  position: relative;
+}
+
+.friend-slot {
+  display: grid;
+  place-items: center;
+  width: 84px;
+  height: 84px;
+  padding: 4px;
+  border-radius: 24px;
+  background: #fff1f6;
+  border: 3px solid transparent;
+  box-shadow: var(--shadow);
+}
+
+.friend-slot svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.friend-slot.empty {
+  background: #fff;
+  border: 3px dashed #e9a9c4;
+  box-shadow: none;
+}
+
+.friend-slot.empty svg {
+  width: 40px;
+  height: 40px;
+  fill: none;
+  stroke: #e06c9f;
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.friend-slot.armed {
+  border-color: var(--accent);
+  animation: friend-wiggle 0.5s ease-in-out infinite;
+}
+
+.friend-slot.saved {
+  border-color: #3ab460;
+  animation: friend-pop 0.5s ease-out;
+}
+
+.friend-clear {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 34px;
+  height: 34px;
+  padding: 6px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: var(--shadow);
+}
+
+.friend-clear svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: #5b3a47;
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.friend-clear.armed {
+  background: #ec4840;
+  transform: scale(1.2);
+}
+
+.friend-clear.armed svg {
+  stroke: #fff;
+}
+
+@keyframes friend-wiggle {
+  0%, 100% { transform: rotate(0); }
+  25% { transform: rotate(-6deg); }
+  75% { transform: rotate(6deg); }
+}
+
+@keyframes friend-pop {
+  0% { transform: scale(0.6); }
+  60% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+/* ------------------------------------------------------------ Tug of war */
+
+.tug {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.tug-players .cat {
+  min-width: 0;
+  width: 76px;
+  padding: 6px 10px;
+}
+
+.tug-players svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.tug-stage {
+  position: relative;
+  margin: var(--gutter);
+  margin-bottom: calc(var(--gutter) + env(safe-area-inset-bottom));
+  min-height: 0;
+  border-radius: var(--radius);
+  background: linear-gradient(#a9dcff, #e6f6ff 70%);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.tug-field {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.tug-pick {
+  position: absolute;
+  inset: 12px 12px auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+  z-index: 2;
+}
+
+.tug-pick[hidden] {
+  display: none;
+}
+
+.tug-choices {
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.75);
+  border: 4px solid #ff6fae;
+}
+
+.tug-choices.right {
+  border-color: #3a80e8;
+}
+
+.tug-choices::-webkit-scrollbar {
+  display: none;
+}
+
+.tug-choice {
+  position: relative;
+  flex: 0 0 auto;
+  min-width: 0;
+  width: 64px;
+  height: 60px;
+  padding: 2px;
+}
+
+.tug-choice svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Friends saved in dress-up get a little heart. */
+.tug-choice.saved::after {
+  content: '';
+  position: absolute;
+  right: 2px;
+  bottom: 2px;
+  width: 16px;
+  height: 16px;
+  background: #ff5fa8;
+  clip-path: path('M8 15C3 11.5 0 8.5 0 5.2 0 2.4 2 0.5 4.4 0.5 6 0.5 7.3 1.4 8 2.7 8.7 1.4 10 0.5 11.6 0.5 14 0.5 16 2.4 16 5.2 16 8.5 13 11.5 8 15Z');
+}
+
+.tug-go {
+  display: grid;
+  place-items: center;
+  width: 108px;
+  height: 108px;
+  padding: 24px;
+  border-radius: 50%;
+  background: #3ab460;
+  color: #fff;
+  box-shadow: 0 6px 0 #2a8a47, var(--shadow);
+}
+
+.tug-go svg,
+.tug-pull svg,
+.tug-change svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.tug-go:active,
+.tug-pull:active {
+  transform: translateY(4px) scale(0.95);
+}
+
+.tug-pick .tug-go {
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 20px);
+  translate: -50% 0;
+}
+
+.tug-go svg path {
+  fill: currentColor;
+}
+
+#tug-again svg path {
+  fill: none;
+}
+
+.tug-change {
+  width: 72px;
+  height: 64px;
+  border-radius: 22px;
+  padding: 10px;
+}
+
+.tug-count {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding-bottom: 20%;
+  font-size: clamp(90px, 18vmin, 200px);
+  font-weight: 900;
+  color: #fff;
+  -webkit-text-stroke: 6px #5b3a47;
+  paint-order: stroke fill;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.tug-count.go {
+  color: #ffd84a;
+}
+
+.tug-count.tick {
+  animation: tug-tick 0.5s ease-out;
+}
+
+.tug-pull {
+  position: absolute;
+  bottom: 16px;
+  z-index: 2;
+  width: clamp(120px, 20vmin, 180px);
+  height: clamp(120px, 20vmin, 180px);
+  padding: 28px;
+  border-radius: 50%;
+  color: #fff;
+  touch-action: none;
+  box-shadow: 0 7px 0 rgba(0, 0, 0, 0.2), var(--shadow);
+}
+
+.tug-pull.left {
+  left: 16px;
+  background: #ff6fae;
+}
+
+.tug-pull.right {
+  right: 16px;
+  background: #3a80e8;
+}
+
+.tug-pull[hidden],
+.tug-end[hidden] {
+  display: none;
+}
+
+.tug-end {
+  position: absolute;
+  left: 50%;
+  top: 18%;
+  translate: -50% -50%;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.tug-doll {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  transition: transform 0.12s ease-out;
+}
+
+#tug:is([data-phase='count'], [data-phase='play']) .tug-doll.left {
+  transform: rotate(-6deg);
+}
+
+#tug:is([data-phase='count'], [data-phase='play']) .tug-doll.right {
+  transform: rotate(6deg);
+}
+
+#tug .tug-doll.left.pull {
+  transform: rotate(-15deg) translateX(-8px);
+}
+
+#tug .tug-doll.right.pull {
+  transform: rotate(15deg) translateX(8px);
+}
+
+#tug .tug-doll.fall {
+  transition: transform 0.45s ease-in;
+}
+
+#tug .tug-doll.left.fall {
+  transform: rotate(24deg) translateX(14px);
+}
+
+#tug .tug-doll.right.fall {
+  transform: rotate(-24deg) translateX(-14px);
+}
+
+#tug .tug-doll.win {
+  animation: tug-jump 0.7s ease-in-out infinite;
+}
+
+.tug-crown.show > g {
+  animation: tug-crown 0.9s ease-in-out infinite alternate;
+}
+
+/* The computer plays on the right: no button there. */
+.tug.solo .tug-choices.right {
+  border-style: dashed;
+}
+
+@keyframes tug-tick {
+  0% { transform: scale(0.4); opacity: 0; }
+  60% { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); }
+}
+
+@keyframes tug-jump {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-34px); }
+}
+
+@keyframes tug-crown {
+  from { transform: translateY(0) rotate(-6deg); }
+  to { transform: translateY(-12px) rotate(6deg); }
+}
+
+/* Phones in portrait: the two rows of players stack. */
+@media (max-aspect-ratio: 1/1) {
+  .tug-pick {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Upright: the start button sits under the field, between the two players. */
+  .tug-pick .tug-go {
+    top: auto;
+    position: fixed;
+    bottom: calc(40px + env(safe-area-inset-bottom));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tug-count.tick,
+  #tug .tug-doll.win,
+  .tug-crown.show > g,
+  .friend-slot.armed,
+  .friend-slot.saved {
+    animation: none;
+  }
+
+  .tug-doll {
+    transition: none;
   }
 }
