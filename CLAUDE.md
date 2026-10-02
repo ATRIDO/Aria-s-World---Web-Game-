@@ -4,7 +4,7 @@ Aria's World: a Vite + TypeScript game (coloring, sketch, tracing, matching) wit
 Rust/WebAssembly region labeler, for young children. It publishes itself to GitHub Pages at
 https://atrido.github.io/Aria-s-World---Web-Game-/ on every push to `main` (`.github/workflows/pages.yml`).
 
-- Game code: `src/aria/`, page: `arias-world/index.html`, build: `vite.aria.config.ts`,
+- Game code: `src/aria/`, page: `index.html`, build: `vite.aria.config.ts`,
   install/offline/QR: `scripts/aria-pwa.ts`, WebAssembly source: `crates/regions/`
   (rebuild `src/aria/wasm/regions.wasm` with `npm run build:wasm`; the built file is committed).
 - The build goes to `dist/` with relative URLs, so it works at any address.

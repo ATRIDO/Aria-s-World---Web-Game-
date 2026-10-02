@@ -6,8 +6,6 @@ import { ariaPwa } from './scripts/aria-pwa';
 // serves at https://atrido.github.io/Aria-s-World---Web-Game-/ (see
 // .github/workflows/pages.yml). All URLs are relative, so any address works.
 export default defineConfig({
-  // The page lives in arias-world/; it loads the code from ../src/aria/.
-  root: fileURLToPath(new URL('./arias-world', import.meta.url)),
   // Relative asset URLs so the build works from any host or sub-path.
   base: './',
   publicDir: false,
@@ -24,7 +22,7 @@ export default defineConfig({
     assetsInlineLimit: 0,
     rollupOptions: {
       input: {
-        aria: fileURLToPath(new URL('./arias-world/index.html', import.meta.url)),
+        aria: fileURLToPath(new URL('./index.html', import.meta.url)),
       },
     },
   },
