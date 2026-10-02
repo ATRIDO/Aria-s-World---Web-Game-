@@ -37,7 +37,12 @@ export type Mode = 'color' | 'sketch';
 const bases = import.meta.glob<string>('./assets/pages/*-base.png', { eager: true, import: 'default' });
 const outlines = import.meta.glob<string>('./assets/pages/*-outline.png', { eager: true, import: 'default' });
 
-/** Titles are only read by screen readers; new pages fall back to "Picture N". */
+/**
+ * Titles are only read by screen readers; new pages fall back to "Picture N".
+ * art*: original pages, drawn in pages-src/ and turned into base/outline PNGs with
+ * scripts/svg-to-page.mjs. page*: the earlier pages, kept by the owner's decision
+ * (see "Art and copyright" in CLAUDE.md).
+ */
 const TITLES: Record<string, string> = {
   page1: 'Girl with sparkles',
   page2: 'Three friends',
@@ -70,6 +75,22 @@ const TITLES: Record<string, string> = {
   page29: 'Mr. Potato Head',
   page30: 'Alien',
   page31: 'Hamm',
+  art1: 'Cat and dog',
+  art2: 'Bunny and chick',
+  art3: 'Elephant and giraffe',
+  art4: 'Under the sea',
+  art5: 'Turtle and snail',
+  art6: 'Butterfly garden',
+  art7: 'Tiger',
+  art8: 'T. rex and volcano',
+  art9: 'Stegosaurus and triceratops',
+  art10: 'Brontosaurus and baby dino',
+  art11: 'Pterodactyl in the sky',
+  art12: 'Pop stars on stage',
+  art13: 'Rapper and drummer',
+  art14: 'Party dolls',
+  art15: 'Best friends',
+  art16: 'Shape friends',
 };
 
 export const PAGES: PageDef[] = Object.keys(bases)
