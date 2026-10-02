@@ -1,13 +1,3 @@
-import red from './assets/crayons/red.png';
-import orange from './assets/crayons/orange.png';
-import yellow from './assets/crayons/yellow.png';
-import green from './assets/crayons/green.png';
-import blue from './assets/crayons/blue.png';
-import lightBlue from './assets/crayons/light-blue.png';
-import violet from './assets/crayons/violet.png';
-import pink from './assets/crayons/pink.png';
-import gray from './assets/crayons/gray.png';
-import white from './assets/crayons/white.png';
 
 export interface PageDef {
   /** Storage key; keep stable so saved pictures survive updates. */
@@ -134,31 +124,6 @@ export function newSketchPage(existing: AnyPage[]): BlankPageDef {
   while (existing.some((p) => p.id === `${ADDED_SKETCH_PREFIX}${t}`)) t++;
   return sketchPage(`${ADDED_SKETCH_PREFIX}${t}`, existing.length);
 }
-
-export interface Crayon {
-  name: string;
-  /** sRGB, 0-255. */
-  rgb: [number, number, number];
-  image: string;
-  /** CSS filter for reusing another crayon's art (the black one is a darkened gray). */
-  filter?: string;
-}
-
-// Colors come from the Unity scene's PenColorButtons where set, otherwise
-// sampled from the crayon artwork.
-export const CRAYONS: Crayon[] = [
-  { name: 'Red', rgb: [0xec, 0x5c, 0x48], image: red },
-  { name: 'Orange', rgb: [0xfe, 0xb7, 0x87], image: orange },
-  { name: 'Yellow', rgb: [0xe0, 0xea, 0x55], image: yellow },
-  { name: 'Green', rgb: [0xa4, 0xee, 0xa4], image: green },
-  { name: 'Blue', rgb: [0x5a, 0x8e, 0xe7], image: blue },
-  { name: 'Light blue', rgb: [0xba, 0xcf, 0xf9], image: lightBlue },
-  { name: 'Violet', rgb: [0xd0, 0xc3, 0xff], image: violet },
-  { name: 'Pink', rgb: [0xff, 0xd6, 0xfc], image: pink },
-  { name: 'Gray', rgb: [0x71, 0x71, 0x71], image: gray },
-  { name: 'Black', rgb: [0x2a, 0x26, 0x28], image: gray, filter: 'brightness(0.4)' },
-  { name: 'White', rgb: [0xf8, 0xf8, 0xf8], image: white },
-];
 
 /** Brush radii in paint-texture pixels (paint is PAINT_SCALE × page size). */
 export const BRUSH_SIZES = [

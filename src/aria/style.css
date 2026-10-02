@@ -394,32 +394,204 @@ body[data-tool='fill'] .size {
 }
 
 .crayons {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 10px;
 }
 
 .crayon {
   display: flex;
   align-items: center;
   /* The crayon art is a thin strip; give each one a finger-sized tap area. */
-  min-height: 44px;
+  min-height: 40px;
   padding: 0;
   background: none;
   transition: transform 0.15s ease-out;
 }
 
-.crayon img {
+.crayon svg {
   display: block;
   width: 100%;
   height: auto;
   pointer-events: none;
+  filter: drop-shadow(0 2px 2px rgba(91, 58, 71, 0.18));
+}
+
+/* Brush and stamp choices, drawn in the chosen color. */
+.brushes {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.stamps {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+body:not([data-tool='crayon']) #brushes,
+body:not([data-tool='stamp']) #stamps {
+  display: none;
+}
+
+.brush {
+  height: 42px;
+  padding: 4px;
+  border-radius: 14px;
+  background: var(--card);
+  box-shadow: var(--shadow);
+  border: 3px solid transparent;
+  color: var(--pen, #e82c2c);
+}
+
+.brush svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  /* Keeps white and pale colors visible on the white button. */
+  filter: drop-shadow(0 0 1px rgba(91, 58, 71, 0.55));
+}
+
+.brush[aria-pressed='true'] {
+  border-color: var(--accent);
+}
+
+/* The magic pen (any color) and the colors picked with it. */
+.more-colors {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.more-colors:empty {
+  display: none;
+}
+
+.wheel-open {
+  display: grid;
+  place-items: center;
+  justify-self: center;
+  align-self: center;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  border-radius: 50%;
+  background: conic-gradient(#ff3b30, #ffcc00, #34c759, #00c7be, #007aff, #af52de, #ff2d92, #ff3b30);
+  box-shadow: var(--shadow);
+  border: 3px solid #fff;
+  transition: transform 0.15s ease-out;
+}
+
+.wheel-open span {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--custom, #27b8b0);
+  border: 3px solid #fff;
+}
+
+.wheel-open[aria-pressed='true'] {
+  border-color: var(--accent);
+  transform: scale(1.08);
+}
+
+.recent {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 50%;
+  background: var(--dot);
+  border: 3px solid #fff;
+  box-shadow: var(--shadow);
+}
+
+.recent[aria-pressed='true'] {
+  border-color: var(--accent);
+}
+
+.wheel-pop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(43, 34, 48, 0.35);
+}
+
+.wheel-pop[hidden] {
+  display: none;
+}
+
+.wheel-card {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  padding: 20px;
+  border-radius: var(--radius);
+  background: var(--card);
+  box-shadow: var(--shadow);
+}
+
+.wheel-disc {
+  position: relative;
+  width: min(72vw, 52vh, 320px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background:
+    radial-gradient(closest-side, #fff, rgba(255, 255, 255, 0)),
+    conic-gradient(hsl(0 100% 50%), hsl(60 100% 50%), hsl(120 100% 50%), hsl(180 100% 50%), hsl(240 100% 50%), hsl(300 100% 50%), hsl(360 100% 50%));
+  box-shadow: 0 0 0 4px #fff, var(--shadow);
+  touch-action: none;
+  cursor: crosshair;
+}
+
+.wheel-knob {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 4px solid #fff;
+  box-shadow: 0 2px 8px rgba(43, 34, 48, 0.4);
+  translate: -50% -50%;
+  pointer-events: none;
+}
+
+.wheel-shades {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.wheel-done {
+  width: 64px;
+  height: 56px;
+  padding: 10px;
+  border-radius: 18px;
+  background: var(--accent);
+  color: #fff;
+  box-shadow: var(--shadow);
+}
+
+.wheel-done svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 /* The chosen crayon sticks out toward the page. */
 .crayon[aria-pressed='true'],
 .eraser[aria-pressed='true'] {
-  transform: translateX(-16px) scale(1.06);
+  transform: translateX(-8px) scale(1.06);
 }
 
 .tools-row {
@@ -431,7 +603,7 @@ body[data-tool='fill'] .size {
 
 .eraser {
   flex: 0 0 auto;
-  width: 64px;
+  width: 52px;
   padding: 0;
   background: none;
   transition: transform 0.15s ease-out;
@@ -453,8 +625,8 @@ body[data-tool='fill'] .size {
 .size {
   display: grid;
   place-items: center;
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   padding: 0;
   border-radius: 50%;
   background: var(--card);
@@ -488,8 +660,30 @@ body[data-tool='fill'] .size {
 
   .crayons {
     display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    align-items: center;
     gap: 4px 10px;
+  }
+
+  /* One sliding row of brushes or stamps above the crayons. */
+  .brushes {
+    display: flex;
+    justify-content: safe center;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding: 4px 2px;
+  }
+
+  .brushes::-webkit-scrollbar {
+    display: none;
+  }
+
+  .brush {
+    flex: 0 0 60px;
+  }
+
+  .more-colors {
+    justify-content: center;
   }
 
   /* The crayon art is a thin strip; give each one a finger-sized tap area. */
@@ -521,8 +715,8 @@ body[data-tool='fill'] .size {
 /* Phones in portrait: two columns of bigger crayons, using the spare height. */
 @media (max-aspect-ratio: 1/1) and (max-width: 560px) {
   .crayons {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 2px 12px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 2px 8px;
   }
 
   .crayon {

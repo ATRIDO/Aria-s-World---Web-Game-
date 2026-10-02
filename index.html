@@ -147,8 +147,15 @@
             <button id="tool-crayon" class="tool" type="button" aria-label="Crayon: draw with your finger">
               <svg viewBox="0 0 24 24"><path d="M15.5 3.5 20.5 8.5 9 20H4v-5L15.5 3.5Z" /><path d="m13 6 5 5" /><path d="M4 20l3-3" /></svg>
             </button>
+            <button id="tool-stamp" class="tool" type="button" aria-label="Stamps: tap to stamp a shape">
+              <svg viewBox="0 0 24 24"><path d="m12 3 2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4l-5.3 3 1.2-6-4.5-4.1 6-.7Z" /></svg>
+            </button>
           </div>
+          <div id="brushes" class="brushes" role="group" aria-label="Brushes"></div>
+          <div id="stamps" class="brushes stamps" role="group" aria-label="Stamps"></div>
           <div id="crayons" class="crayons"></div>
+          <button id="wheel-open" class="wheel-open" type="button" aria-label="Magic pen: pick any color"><span id="wheel-pen"></span></button>
+          <div id="more-colors" class="more-colors" role="group" aria-label="Colors you picked"></div>
           <div class="tools-row">
             <button id="eraser" class="eraser" type="button" aria-label="Eraser">
               <img id="eraser-img" alt="" draggable="false" />
@@ -158,6 +165,15 @@
         </aside>
       </main>
       <p id="renderer-badge" class="badge" hidden></p>
+      <div id="wheel" class="wheel-pop" role="dialog" aria-label="Pick any color" hidden>
+        <div class="wheel-card">
+          <div id="wheel-disc" class="wheel-disc"><span id="wheel-knob" class="wheel-knob"></span></div>
+          <div id="wheel-shades" class="wheel-shades" role="group" aria-label="Lighter and darker"></div>
+          <button id="wheel-done" class="wheel-done" type="button" aria-label="Done">
+            <svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5" /></svg>
+          </button>
+        </div>
+      </div>
     </section>
 
     <section id="dress" class="screen dress" hidden>
