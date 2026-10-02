@@ -10,6 +10,7 @@ export type Screen =
   | { name: 'start' }
   | { name: 'trace' }
   | { name: 'match' }
+  | { name: 'dress' }
   | { name: 'gallery'; mode: Mode }
   | { name: 'color'; mode: Mode; view?: ViewState };
 
