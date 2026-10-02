@@ -14,21 +14,21 @@ https://atrido.github.io/Aria-s-World---Web-Game-/ on every push to `main` (`.gi
 Before pushing: `npm run typecheck && npm run build` (CI runs the same). Regenerate
 `package-lock.json` with `npm install`; never hand-edit it.
 
-## Original art only (required)
+## Art and copyright (required)
 
-This repo and its GitHub Pages site are public, so everything in the game is published. Only use
-art, characters, music and sounds that are original (drawn here, or made by the owner) or clearly
-licensed for reuse (e.g. public domain / CC0, with the licence noted next to the file).
+This repo and its GitHub Pages site are public, so everything in the game is published.
 
-- **Never** add, trace, redraw or "chibi" characters owned by others (Disney, Pixar, Warner Bros.,
-  Hasbro, Mattel/Barbie, Netflix/Sony's KPop Demon Hunters, Nintendo, etc.), even for free,
-  non-commercial or "educational" use, and even if a coloring website offers the page "free to
-  print". Fan art of those characters is not OK either. Brand names (Barbie, etc.) stay out of the
-  UI too.
-- Inspired-by is fine: original characters in a general style (fashion dolls, K-pop idols,
-  princesses, dinosaurs) with their own names, looks and outfits.
-- When the owner asks for a protected character, explain this briefly and offer an original
-  alternative instead.
+- **New art you make or add** must be original (drawn here, or made by the owner) or clearly
+  licensed for reuse (public domain / CC0 etc., licence noted next to the file). Don't draw, trace
+  or "chibi" characters owned by others (Disney, Pixar, Warner Bros., Hasbro, Mattel/Barbie,
+  Netflix/Sony's KPop Demon Hunters, Nintendo, etc.); offer an original alternative instead
+  (original fashion dolls, K-pop idols, princesses...). Keep brand names out of the UI.
+- **Existing coloring pages `page1`–`page31`** show such characters (Disney princesses, Frozen,
+  Toy Story, Harry Potter, Powerpuff Girls, My Little Pony, Peppa Pig, KPop Demon Hunters fan
+  art). The owner decided to keep them for now, knowing the risk. **If a report, takedown notice
+  or complaint about any of them arrives, remove those pages right away** (delete
+  `src/aria/assets/pages/pageN-*.png`, drop the titles in `src/aria/pages.ts`) and publish; the
+  original `art*` pages remain.
 - Coloring pages are drawn as SVG in `src/aria/assets/pages-src/` and converted with
   `node scripts/svg-to-page.mjs` (needs Playwright; see the script). Give new pages new ids:
   saved pictures are stored per page id, so reusing an id puts an old picture on a new page.
