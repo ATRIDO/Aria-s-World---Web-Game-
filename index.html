@@ -96,6 +96,39 @@
               <path d="M70 60l6 13 14 2-10 9 3 14-13-7-13 7 3-14-10-9 14-2Z" fill="#fff" />
             </svg>
           </button>
+          <button id="play-tug" class="mode-card" type="button" data-mode="tug" aria-label="Tug of war for two">
+            <svg class="trace-card-art" viewBox="0 0 560 560" aria-hidden="true">
+              <defs>
+                <linearGradient id="tg-bg" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stop-color="#bfe9a8" />
+                  <stop offset="1" stop-color="#4fbf6a" />
+                </linearGradient>
+              </defs>
+              <rect x="40" y="96" width="400" height="400" rx="26" fill="url(#tg-bg)" />
+              <path d="M70 330Q240 350 410 318" fill="none" stroke="#a8693a" stroke-width="12" stroke-linecap="round" />
+              <path d="M70 330Q240 350 410 318" fill="none" stroke="#d9a066" stroke-width="5" stroke-dasharray="10 10" stroke-linecap="round" />
+              <path d="M240 340v46l26-14z" fill="#ffd84a" stroke="#5b3a47" stroke-width="5" stroke-linejoin="round" />
+              <g transform="rotate(-12 110 400)">
+                <path d="M86 270Q110 262 134 270L138 352H82Z" fill="#ff6fae" stroke="#5b3a47" stroke-width="6" stroke-linejoin="round" />
+                <circle cx="110" cy="230" r="36" fill="#fbd9c2" stroke="#5b3a47" stroke-width="6" />
+                <path d="M74 232A38 38 0 1 1 146 232C134 214 120 210 110 216 100 210 86 214 74 232Z" fill="#f2c75c" stroke="#5b3a47" stroke-width="6" stroke-linejoin="round" />
+                <circle cx="98" cy="236" r="5" fill="#5b3a47" /><circle cx="122" cy="236" r="5" fill="#5b3a47" />
+                <path d="M100 252q10 6 20 0" fill="none" stroke="#5b3a47" stroke-width="4" stroke-linecap="round" />
+                <path d="M92 352v40M128 352v40" stroke="#5b3a47" stroke-width="12" stroke-linecap="round" />
+              </g>
+              <g transform="rotate(12 370 400)">
+                <path d="M346 266Q370 258 394 266L398 348H342Z" fill="#4fc3ee" stroke="#5b3a47" stroke-width="6" stroke-linejoin="round" />
+                <circle cx="370" cy="226" r="36" fill="#9a6440" stroke="#5b3a47" stroke-width="6" />
+                <circle cx="342" cy="200" r="16" fill="#2b2230" stroke="#5b3a47" stroke-width="5" /><circle cx="398" cy="200" r="16" fill="#2b2230" stroke="#5b3a47" stroke-width="5" />
+                <path d="M334 228A38 38 0 1 1 406 228C394 212 382 206 370 212 358 206 346 212 334 228Z" fill="#2b2230" stroke="#5b3a47" stroke-width="6" stroke-linejoin="round" />
+                <circle cx="358" cy="232" r="5" fill="#fff" /><circle cx="382" cy="232" r="5" fill="#fff" />
+                <path d="M360 248q10 6 20 0" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" />
+                <path d="M352 348v40M388 348v40" stroke="#5b3a47" stroke-width="12" stroke-linecap="round" />
+              </g>
+              <text x="84" y="462" fill="#fff" font-family="ui-rounded, 'SF Pro Rounded', system-ui, sans-serif" font-size="56" font-weight="700" letter-spacing="2">tug of war</text>
+              <path d="M488 70l10 22 24 3-18 16 5 24-21-12-21 12 5-24-18-16 24-3Z" fill="#ffd54f" />
+            </svg>
+          </button>
         </div>
         <p id="start-status" class="status" role="status"></p>
       </div>
@@ -186,6 +219,9 @@
           <button id="dress-undo" class="icon" type="button" aria-label="Undo" disabled>
             <svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5M4 9h10a6 6 0 0 1 0 12h-3" /></svg>
           </button>
+          <button id="dress-save" class="icon dress-save" type="button" aria-label="Save her as a friend for games">
+            <svg viewBox="0 0 24 24"><path d="M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.4 4.3 4.3 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10Z" /><path d="M12 10.5v5M9.5 13h5" /></svg>
+          </button>
           <button id="dress-shuffle" class="icon" type="button" aria-label="Surprise outfit">
             <svg viewBox="0 0 24 24"><path d="M12 3l2.2 5.6L20 9.5l-4.5 3.8L17 19l-5-3.2L7 19l1.5-5.7L4 9.5l5.8-.9Z" /></svg>
           </button>
@@ -199,6 +235,56 @@
           <div id="dress-drawers" class="dress-drawers" role="group" aria-label="Drawers"></div>
           <div id="dress-colors" class="dress-colors" role="group" aria-label="Colors"></div>
           <div id="dress-items" class="dress-items" role="group" aria-label="Clothes"></div>
+        </div>
+      </main>
+      <div id="dress-friends" class="wheel-pop" role="dialog" aria-label="Save her as a friend" hidden>
+        <div class="wheel-card friends-card">
+          <svg class="friends-title" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.4 4.3 4.3 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10Z" /></svg>
+          <div id="dress-friend-slots" class="friend-slots" role="group" aria-label="Five friends"></div>
+          <button id="dress-friends-close" class="wheel-done" type="button" aria-label="Close">
+            <svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7 7 17" /></svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section id="tug" class="screen tug" hidden>
+      <header class="bar">
+        <button id="tug-home" class="icon" type="button" aria-label="Home">
+          <svg viewBox="0 0 24 24"><path d="M3 11 12 3l9 8M5 9.5V21h5v-6h4v6h5V9.5" /></svg>
+        </button>
+        <div class="trace-cats tug-players" role="group" aria-label="Players">
+          <button id="tug-two" class="cat" type="button" aria-label="Two players">
+            <svg viewBox="0 0 48 24" aria-hidden="true"><circle cx="14" cy="7" r="4.5" /><path d="M6 21a8 8 0 0 1 16 0" /><circle cx="34" cy="7" r="4.5" /><path d="M26 21a8 8 0 0 1 16 0" /></svg>
+          </button>
+          <button id="tug-one" class="cat" type="button" aria-label="One player, against the computer">
+            <svg viewBox="0 0 48 24" aria-hidden="true"><circle cx="14" cy="7" r="4.5" /><path d="M6 21a8 8 0 0 1 16 0" /><rect x="27" y="3" width="14" height="10" rx="3" /><path d="M31 8h.01M37 8h.01M34 3V0M27 21v-4a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3v4" /></svg>
+          </button>
+        </div>
+      </header>
+      <main id="tug-stage" class="tug-stage">
+        <svg id="tug-field" class="tug-field" viewBox="0 0 1000 560" preserveAspectRatio="xMidYMax meet" aria-hidden="true"></svg>
+        <div id="tug-pick" class="tug-pick">
+          <div id="tug-pick-left" class="tug-choices left" role="group" aria-label="Left player: choose who plays"></div>
+          <button id="tug-go" class="tug-go" type="button" aria-label="Start">
+            <svg viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5Z" /></svg>
+          </button>
+          <div id="tug-pick-right" class="tug-choices right" role="group" aria-label="Right player: choose who plays"></div>
+        </div>
+        <div id="tug-count" class="tug-count" aria-live="assertive"></div>
+        <button id="tug-pull-left" class="tug-pull left" type="button" aria-label="Pull! (left player)" hidden>
+          <svg viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6" /></svg>
+        </button>
+        <button id="tug-pull-right" class="tug-pull right" type="button" aria-label="Pull! (right player)" hidden>
+          <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+        </button>
+        <div id="tug-end" class="tug-end" hidden>
+          <button id="tug-again" class="tug-go" type="button" aria-label="Play again">
+            <svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5" /></svg>
+          </button>
+          <button id="tug-change" class="icon tug-change" type="button" aria-label="Choose other players">
+            <svg viewBox="0 0 48 24"><circle cx="14" cy="7" r="4.5" /><path d="M6 21a8 8 0 0 1 16 0" /><circle cx="34" cy="7" r="4.5" /><path d="M26 21a8 8 0 0 1 16 0" /></svg>
+          </button>
         </div>
       </main>
     </section>

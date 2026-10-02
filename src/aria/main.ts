@@ -11,6 +11,7 @@ import type { Mode } from './pages';
 import { DressUpApp } from './dress/dressup';
 import { MatchingApp } from './match/matcher';
 import { TracingApp } from './trace/tracer';
+import { TugApp } from './tug/tug';
 import { consumeResume, saveResume, watchForUpdates, type Screen } from './updates';
 import { installTapPop } from './vfx';
 
@@ -49,6 +50,8 @@ const matching = new MatchingApp(app.sound);
 const match = byId<HTMLElement>('match');
 const dressing = new DressUpApp(app.sound);
 const dress = byId<HTMLElement>('dress');
+const tugging = new TugApp(app.sound);
+const tug = byId<HTMLElement>('tug');
 installTapPop();
 let ready: Promise<void> | null = null;
 
@@ -59,7 +62,7 @@ const gallery = new Gallery(
   () => void openColoring(() => app.setMode('color'), 'Getting the crayons…'),
 );
 
-type StartChoice = Mode | 'trace' | 'match' | 'dress';
+type StartChoice = Mode | 'trace' | 'match' | 'dress' | 'tug';
 
 async function play(mode: StartChoice): Promise<void> {
   app.sound.unlock();
@@ -83,6 +86,13 @@ async function play(mode: StartChoice): Promise<void> {
     dress.hidden = false;
     video.pause();
     dressing.open();
+    return;
+  }
+  if (mode === 'tug') {
+    start.hidden = true;
+    tug.hidden = false;
+    video.pause();
+    tugging.open();
     return;
   }
   await openColoring(() => app.setMode(mode), mode === 'sketch' ? 'Sharpening the crayons…' : 'Getting the crayons…');
@@ -125,7 +135,7 @@ for (const b of document.querySelectorAll<HTMLButtonElement>('.mode-card')) {
 // built for production (scripts/aria-pwa.ts). New versions apply by themselves at a
 // quiet moment, and the child comes back to the same screen, page and crayon.
 const updates = watchForUpdates({
-  busy: () => app.busy || tracing.busy || matching.busy || dressing.busy,
+  busy: () => app.busy || tracing.busy || matching.busy || dressing.busy || tugging.busy,
   onStart: () => !start.hidden,
   prepare: async () => {
     saveResume(currentScreen());
@@ -140,11 +150,13 @@ function goHome(): void {
   tracing.close();
   matching.close();
   dressing.close();
+  tugging.close();
   gallery.close();
   color.hidden = true;
   trace.hidden = true;
   match.hidden = true;
   dress.hidden = true;
+  tug.hidden = true;
   galleryScreen.hidden = true;
   start.hidden = false;
   video.play().catch(() => {});
@@ -155,6 +167,7 @@ byId<HTMLButtonElement>('home').addEventListener('click', goHome);
 byId<HTMLButtonElement>('trace-home').addEventListener('click', goHome);
 byId<HTMLButtonElement>('match-home').addEventListener('click', goHome);
 byId<HTMLButtonElement>('dress-home').addEventListener('click', goHome);
+byId<HTMLButtonElement>('tug-home').addEventListener('click', goHome);
 // The Gallery opens from the Color/Sketch toolbar and goes back to the picture.
 byId<HTMLButtonElement>('gallery-open').addEventListener('click', () => {
   app.sound.playPop();
@@ -175,6 +188,7 @@ function currentScreen(): Screen {
   if (!trace.hidden) return { name: 'trace' };
   if (!match.hidden) return { name: 'match' };
   if (!dress.hidden) return { name: 'dress' };
+  if (!tug.hidden) return { name: 'tug' };
   if (!galleryScreen.hidden) return { name: 'gallery', mode: app.currentMode };
   if (!color.hidden) return { name: 'color', mode: app.currentMode, view: app.viewState };
   return { name: 'start' };
@@ -197,6 +211,9 @@ if (resume && resume.name !== 'start') {
   } else if (resume.name === 'dress') {
     dress.hidden = false;
     dressing.open();
+  } else if (resume.name === 'tug') {
+    tug.hidden = false;
+    tugging.open();
   } else {
     color.hidden = false;
     const mode = resume.mode ?? app.currentMode;

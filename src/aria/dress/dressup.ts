@@ -1,9 +1,11 @@
 import type { Sound } from '../audio';
 import { vfx } from '../vfx';
 import {
-  BODY, CLOTH_COLORS, DOLLS, DRAWERS, FEET, HAIR, HAIR_COLORS, ITEMS, LAYERS,
-  type Doll, type Item, type Slot,
-} from './wardrobe';
+  SVG_NS, cloneLook as clone, cropAll, fitToContent, freshLook, headOnly, headSvg, itemById as byId, lookMarkup,
+  type Look,
+} from './art';
+import { dollOf, loadFriends, saveFriends, type Friend } from './friends';
+import { BODY, CLOTH_COLORS, DOLLS, DRAWERS, HAIR, HAIR_COLORS, ITEMS, type Doll, type Item, type Slot } from './wardrobe';
 
 // Dress-up: pick a doll, open a drawer (hair, dresses, tops, ...), and tap or
 // drag a piece onto her. Tapping a piece she already wears takes it off; the
@@ -14,30 +16,15 @@ const SAVE_KEY = 'arias-world:dress';
 const MAX_UNDO = 30;
 /** A finger that moved less than this (px) was a tap, not a drag. */
 const TAP_PX = 10;
-const SVG_NS = 'http://www.w3.org/2000/svg';
 /** Drawer buttons show one item that says what's inside. */
 const DRAWER_ICON: Partial<Record<Slot, string>> = { hair: 'curly', face: 'lipstick', ears: 'starstuds', hat: 'tiara', back: 'fairywings' };
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
-
-/** What one doll wears: item id per slot, and the colors chosen for each slot. */
-interface Look {
-  worn: Partial<Record<Slot, string>>;
-  colors: Partial<Record<Slot, [string, string]>>;
-  hairColor: string;
-}
 
 interface Saved {
   doll: number;
   looks: Record<string, Look>;
 }
 
-const byId = new Map<string, Item>([...ITEMS, ...HAIR].map((i) => [i.id, i]));
-
-function freshLook(d: Doll): Look {
-  return { worn: { hair: d.hair, ...d.outfit }, colors: {}, hairColor: d.hairColor };
-}
-
-const clone = (l: Look): Look => JSON.parse(JSON.stringify(l)) as Look;
 
 export class DressUpApp {
   private doll = 0;
@@ -128,9 +115,108 @@ export class DressUpApp {
       this.sound.playPop();
       this.surprise();
     });
+    $('dress-save').addEventListener('click', () => {
+      this.sound.playPop();
+      this.openFriends();
+    });
+    const pop = $('dress-friends');
+    const closeFriends = () => {
+      pop.hidden = true;
+    };
+    $('dress-friends-close').addEventListener('click', () => {
+      this.sound.playPop();
+      closeFriends();
+    });
+    pop.addEventListener('click', (e) => {
+      if (e.target === pop) closeFriends();
+    });
+    pop.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeFriends();
+    });
     document.addEventListener('pointermove', (e) => this.onDragMove(e));
     document.addEventListener('pointerup', (e) => this.onDragEnd(e));
     document.addEventListener('pointercancel', () => this.endDrag());
+  }
+
+  // ---------------------------------------------------------------------------
+  // Saving friends (up to five), to play as in other games
+  // ---------------------------------------------------------------------------
+
+  private openFriends(): void {
+    $('dress-friends').hidden = false;
+    this.renderFriends();
+    $<HTMLButtonElement>('dress-friends-close').focus();
+  }
+
+  /**
+   * Five places. An empty one saves her there right away; a full one asks first
+   * (it wiggles, and a second tap replaces it). The little x clears one, also
+   * with a second tap, so nobody loses a friend by accident.
+   */
+  private renderFriends(armed = ''): void {
+    const box = $('dress-friend-slots');
+    box.replaceChildren();
+    const friends = loadFriends();
+    friends.forEach((f, i) => {
+      const cell = document.createElement('div');
+      cell.className = 'friend-cell';
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'friend-slot';
+      if (f) {
+        b.setAttribute('aria-label', armed === `put${i}` ? 'Tap again to put her here instead' : 'Saved friend: tap twice to put her here instead');
+        b.appendChild(headSvg(dollOf(f.doll), f.look));
+        if (armed === `put${i}`) b.classList.add('armed');
+      } else {
+        b.classList.add('empty');
+        b.setAttribute('aria-label', 'Save her here');
+        b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6v12M6 12h12" /></svg>';
+      }
+      b.addEventListener('click', () => {
+        if (f && armed !== `put${i}`) {
+          this.sound.playPop(0.9);
+          this.renderFriends(`put${i}`);
+          return;
+        }
+        this.putFriend(friends, i);
+      });
+      cell.appendChild(b);
+      if (f) {
+        const x = document.createElement('button');
+        x.type = 'button';
+        x.className = 'friend-clear';
+        if (armed === `clear${i}`) x.classList.add('armed');
+        x.setAttribute('aria-label', armed === `clear${i}` ? 'Tap again to remove' : 'Remove');
+        x.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17" /></svg>';
+        x.addEventListener('click', () => {
+          this.sound.playPop(0.8);
+          if (armed !== `clear${i}`) {
+            this.renderFriends(`clear${i}`);
+            return;
+          }
+          friends[i] = null;
+          saveFriends(friends);
+          this.renderFriends();
+        });
+        cell.appendChild(x);
+      }
+      box.appendChild(cell);
+    });
+    cropAll(box);
+  }
+
+  private putFriend(friends: (Friend | null)[], i: number): void {
+    friends[i] = { doll: this.dollDef.id, look: clone(this.look) };
+    saveFriends(friends);
+    this.renderFriends();
+    const slot = $('dress-friend-slots').children[i]?.querySelector<HTMLElement>('.friend-slot');
+    slot?.classList.add('saved');
+    const r = slot?.getBoundingClientRect();
+    if (r) vfx.burst(r.left + r.width / 2, r.top + r.height / 2, { count: 18, colors: ['#ff6fae', '#ffd54f', '#ffffff'], shape: 'star', speed: 280, size: 9, life: 0.7 });
+    this.sound.playPop(1.3);
+    window.setTimeout(() => {
+      $('dress-friends').hidden = true;
+    }, 900);
   }
 
   private itemsFor(slot: Slot): Item[] {
@@ -147,20 +233,8 @@ export class DressUpApp {
     $<HTMLButtonElement>('dress-undo').disabled = !this.undoStack.length;
   }
 
-  /** The doll with everything she wears, in layer order. */
   private dollMarkup(d: Doll, look: Look): string {
-    let back = '', front = '';
-    for (const slot of LAYERS) {
-      const id = look.worn[slot];
-      const item = id ? byId.get(id) : undefined;
-      if (!item) continue;
-      const [c1, c2] = look.colors[slot] ?? item.colors;
-      const style = `--c1:${c1};--c2:${c2}`;
-      if (item.back) back += `<g style="${style}">${item.back}</g>`;
-      front += `<g class="layer" data-slot="${slot}" style="${style}">${item.front}</g>`;
-    }
-    const feet = look.worn.shoes ? '' : FEET;
-    return `<g style="--skin:${d.skin};--eyes:${d.eyes};--hair:${look.hairColor}">${back}${BODY}${feet}${front}</g>`;
+    return lookMarkup(d, look);
   }
 
   private renderDoll(popSlot?: Slot): void {
@@ -210,7 +284,7 @@ export class DressUpApp {
       box.appendChild(b);
     }
     // Crop every picture to its drawing once it's on screen.
-    requestAnimationFrame(() => document.querySelectorAll<SVGSVGElement>('#dress svg.crop').forEach(fitToContent));
+    cropAll($('dress'));
   }
 
   private wornItem(slot: Slot): Item | undefined {
@@ -254,14 +328,7 @@ export class DressUpApp {
   }
 
   private headSvg(d: Doll): SVGSVGElement {
-    const svg = document.createElementNS(SVG_NS, 'svg');
-    svg.setAttribute('viewBox', '0 0 200 320');
-    svg.setAttribute('aria-hidden', 'true');
-    svg.classList.add('crop');
-    svg.dataset.crop = 'head';
-    const look = this.looks[d.id] ?? freshLook(d);
-    svg.innerHTML = this.dollMarkup(d, { worn: { hair: look.worn.hair }, colors: {}, hairColor: look.hairColor }).replace(BODY, headOnly());
-    return svg;
+    return headSvg(d, this.looks[d.id] ?? freshLook(d));
   }
 
   // ---------------------------------------------------------------------------
@@ -416,28 +483,5 @@ export class DressUpApp {
     this.drag?.ghost?.remove();
     this.drag = null;
     $('dress-doll').classList.remove('near');
-  }
-}
-
-/** Just the head and face of BODY (for hair pictures and the doll buttons). */
-function headOnly(): string {
-  const start = BODY.indexOf('<circle cx="57"');
-  return BODY.slice(start);
-}
-
-/** Tight viewBox around what's drawn, with a little room. */
-function fitToContent(svg: SVGSVGElement): void {
-  if (svg.dataset.fitted) return;
-  try {
-    const g = svg.firstElementChild as SVGGraphicsElement | null;
-    const b = g?.getBBox();
-    if (!b || !b.width || !b.height) return;
-    let { x, y, width: w, height: h } = b;
-    if (svg.dataset.crop === 'head') h = Math.min(h, 130 - y);
-    const pad = Math.max(w, h) * 0.08;
-    svg.setAttribute('viewBox', `${x - pad} ${y - pad} ${w + pad * 2} ${h + pad * 2}`);
-    svg.dataset.fitted = '1';
-  } catch {
-    // not rendered yet; keep the full box
   }
 }
