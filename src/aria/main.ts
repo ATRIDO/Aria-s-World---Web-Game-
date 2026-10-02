@@ -8,6 +8,7 @@ import logo from './assets/ui/logo.png';
 import modeColor from './assets/ui/mode-color.png';
 import modeSketch from './assets/ui/mode-sketch.png';
 import type { Mode } from './pages';
+import { DressUpApp } from './dress/dressup';
 import { MatchingApp } from './match/matcher';
 import { TracingApp } from './trace/tracer';
 import { consumeResume, saveResume, watchForUpdates, type Screen } from './updates';
@@ -46,6 +47,8 @@ const tracing = new TracingApp(app.sound);
 const trace = byId<HTMLElement>('trace');
 const matching = new MatchingApp(app.sound);
 const match = byId<HTMLElement>('match');
+const dressing = new DressUpApp(app.sound);
+const dress = byId<HTMLElement>('dress');
 installTapPop();
 let ready: Promise<void> | null = null;
 
@@ -56,7 +59,7 @@ const gallery = new Gallery(
   () => void openColoring(() => app.setMode('color'), 'Getting the crayons…'),
 );
 
-type StartChoice = Mode | 'trace' | 'match';
+type StartChoice = Mode | 'trace' | 'match' | 'dress';
 
 async function play(mode: StartChoice): Promise<void> {
   app.sound.unlock();
@@ -73,6 +76,13 @@ async function play(mode: StartChoice): Promise<void> {
     match.hidden = false;
     video.pause();
     matching.open();
+    return;
+  }
+  if (mode === 'dress') {
+    start.hidden = true;
+    dress.hidden = false;
+    video.pause();
+    dressing.open();
     return;
   }
   await openColoring(() => app.setMode(mode), mode === 'sketch' ? 'Sharpening the crayons…' : 'Getting the crayons…');
@@ -115,7 +125,7 @@ for (const b of document.querySelectorAll<HTMLButtonElement>('.mode-card')) {
 // built for production (scripts/aria-pwa.ts). New versions apply by themselves at a
 // quiet moment, and the child comes back to the same screen, page and crayon.
 const updates = watchForUpdates({
-  busy: () => app.busy || tracing.busy || matching.busy,
+  busy: () => app.busy || tracing.busy || matching.busy || dressing.busy,
   onStart: () => !start.hidden,
   prepare: async () => {
     saveResume(currentScreen());
@@ -129,10 +139,12 @@ function goHome(): void {
   void app.flushSave();
   tracing.close();
   matching.close();
+  dressing.close();
   gallery.close();
   color.hidden = true;
   trace.hidden = true;
   match.hidden = true;
+  dress.hidden = true;
   galleryScreen.hidden = true;
   start.hidden = false;
   video.play().catch(() => {});
@@ -142,6 +154,7 @@ function goHome(): void {
 byId<HTMLButtonElement>('home').addEventListener('click', goHome);
 byId<HTMLButtonElement>('trace-home').addEventListener('click', goHome);
 byId<HTMLButtonElement>('match-home').addEventListener('click', goHome);
+byId<HTMLButtonElement>('dress-home').addEventListener('click', goHome);
 // The Gallery opens from the Color/Sketch toolbar and goes back to the picture.
 byId<HTMLButtonElement>('gallery-open').addEventListener('click', () => {
   app.sound.playPop();
@@ -161,6 +174,7 @@ byId<HTMLButtonElement>('gallery-exit').addEventListener('click', () => {
 function currentScreen(): Screen {
   if (!trace.hidden) return { name: 'trace' };
   if (!match.hidden) return { name: 'match' };
+  if (!dress.hidden) return { name: 'dress' };
   if (!galleryScreen.hidden) return { name: 'gallery', mode: app.currentMode };
   if (!color.hidden) return { name: 'color', mode: app.currentMode, view: app.viewState };
   return { name: 'start' };
@@ -180,6 +194,9 @@ if (resume && resume.name !== 'start') {
   } else if (resume.name === 'match') {
     match.hidden = false;
     matching.open();
+  } else if (resume.name === 'dress') {
+    dress.hidden = false;
+    dressing.open();
   } else {
     color.hidden = false;
     const mode = resume.mode ?? app.currentMode;
