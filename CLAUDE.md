@@ -14,6 +14,26 @@ https://atrido.github.io/Aria-s-World---Web-Game-/ on every push to `main` (`.gi
 Before pushing: `npm run typecheck && npm run build` (CI runs the same). Regenerate
 `package-lock.json` with `npm install`; never hand-edit it.
 
+## Original art only (required)
+
+This repo and its GitHub Pages site are public, so everything in the game is published. Only use
+art, characters, music and sounds that are original (drawn here, or made by the owner) or clearly
+licensed for reuse (e.g. public domain / CC0, with the licence noted next to the file).
+
+- **Never** add, trace, redraw or "chibi" characters owned by others (Disney, Pixar, Warner Bros.,
+  Hasbro, Mattel/Barbie, Netflix/Sony's KPop Demon Hunters, Nintendo, etc.), even for free,
+  non-commercial or "educational" use, and even if a coloring website offers the page "free to
+  print". Fan art of those characters is not OK either. Brand names (Barbie, etc.) stay out of the
+  UI too.
+- Inspired-by is fine: original characters in a general style (fashion dolls, K-pop idols,
+  princesses, dinosaurs) with their own names, looks and outfits.
+- When the owner asks for a protected character, explain this briefly and offer an original
+  alternative instead.
+- Coloring pages are drawn as SVG in `src/aria/assets/pages-src/` and converted with
+  `node scripts/svg-to-page.mjs` (needs Playwright; see the script). Give new pages new ids:
+  saved pictures are stored per page id, so reusing an id puts an old picture on a new page.
+- Before adding assets from Google Drive or elsewhere, check where they came from; if unsure, ask.
+
 ## Google Drive (required)
 
 Only open the **Aria's World** folder in Google Drive (folder id `17pv5rPJIw4Yfe4udDFXhD8_-pZhIJElP`)

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="640" height="640">
+<title>Brontosaurus and baby dino</title>
+<rect width="640" height="640" fill="#fff"/>
+<path d="M0 540Q160 516 320 540T640 540V640H0Z" fill="#fff" stroke="#5b3a47" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/><path d="M546 540h28v-90h-28z" fill="#fff" stroke="#5b3a47" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="560" cy="410" r="60" fill="#fff" stroke="#5b3a47" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/><svg x="30" y="90" width="420" height="420" viewBox="-6 -6 112 112" overflow="visible">
+    <path d="M76 66c10 0 18 2 22 8-8 4-18 2-24-2z" fill="#b48ae8" stroke="#5b3a47" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+    <rect x="44" y="70" width="11" height="20" rx="4" fill="#b48ae8" stroke="#5b3a47" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><rect x="70" y="70" width="11" height="20" rx="4" fill="#b48ae8" stroke="#5b3a47" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+    <ellipse cx="60" cy="66" rx="26" ry="16" fill="#b48ae8" stroke="#5b3a47" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+    <path d="M40 60C34 44 26 30 20 22l8-6c8 8 18 22 22 38z" fill="#b48ae8" stroke="#5b3a47" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+    <ellipse cx="20" cy="15" rx="11" ry="7.5" fill="#b48ae8" stroke="#5b3a47" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+    <circle cx="56" cy="62" r="4" fill="#d6bdf5"/><circle cx="68" cy="58" r="3" fill="#d6bdf5"/><circle cx="66" cy="70" r="3.5" fill="#d6bdf5"/>
+    <circle cx="15" cy="13" r="2.2" fill="#5b3a47"/><circle cx="15.77" cy="12.23" r="0.77" fill="#fff"/><path d="M12 18q2 1.8 4 0" fill="none" stroke="#5b3a47" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/></svg><svg x="410" y="380" width="160" height="160" viewBox="-6 -6 112 112" overflow="visible">
+    <circle cx="50" cy="34" r="16" fill="#8fd16a" stroke="#5b3a47" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+    <path d="M38 22l4-8 4 6 4-8 4 8 4-6 3 8" fill="#ff8fa8" stroke="#5b3a47" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+    <circle cx="44" cy="34" r="2.8" fill="#5b3a47"/><circle cx="44.98" cy="33.02" r="0.9799999999999999" fill="#fff"/><circle cx="56" cy="34" r="2.8" fill="#5b3a47"/><circle cx="56.98" cy="33.02" r="0.9799999999999999" fill="#fff"/><path d="M47 40q3 2.7 6 0" fill="none" stroke="#5b3a47" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><ellipse cx="40" cy="41" rx="3.2" ry="2" fill="#ff9db5" opacity="0.7"/><ellipse cx="60" cy="41" rx="3.2" ry="2" fill="#ff9db5" opacity="0.7"/>
+    <path d="M18 56c0 24 14 40 32 40s32-16 32-40l-10 6-8-8-8 8-6-8-6 8-8-8-8 8z" fill="#fff6e0" stroke="#5b3a47" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+    <circle cx="36" cy="76" r="4" fill="#8fd1f0"/><circle cx="62" cy="82" r="5" fill="#8fd1f0"/><circle cx="56" cy="68" r="3" fill="#ffcf4a"/></svg>
+</svg>
