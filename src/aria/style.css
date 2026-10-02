@@ -1158,7 +1158,20 @@ body[data-tool='fill'] .size {
 }
 
 /* Doll faces to choose who to dress. */
+/* Eight dolls: slide sideways on small screens. */
+.dress-dolls {
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+}
+
+.dress-dolls::-webkit-scrollbar {
+  display: none;
+}
+
 .dress-doll {
+  flex: 0 0 auto;
   min-width: 0;
   width: 60px;
   height: 56px;
@@ -1187,6 +1200,7 @@ body[data-tool='fill'] .size {
   border-radius: var(--radius);
   background: radial-gradient(circle at 50% 42%, #fff 0 45%, #fff1f6 75%);
   box-shadow: var(--shadow);
+  overflow: hidden;
   transition: box-shadow 0.2s;
 }
 
@@ -1196,6 +1210,7 @@ body[data-tool='fill'] .size {
 
 .dress-doll-stage svg {
   display: block;
+  overflow: visible; /* places fill the whole stage */
   width: 100%;
   height: 100%;
 }
@@ -1248,7 +1263,7 @@ body[data-tool='fill'] .size {
 /* Drawers: one picture button per kind of clothing. */
 .dress-drawers {
   display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(52px, 1fr));
   gap: 6px;
 }
 
@@ -1349,8 +1364,34 @@ body[data-tool='fill'] .size {
 }
 
 @media (max-width: 560px) {
-  .dress-drawers {
-    grid-template-columns: repeat(7, minmax(44px, 1fr));
+  /* One sliding row each for drawers and colors, so the doll keeps her room. */
+  .dress-drawers,
+  .dress-colors {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    overscroll-behavior-x: contain;
+    flex: 0 0 auto;
+  }
+
+  .dress-drawers::-webkit-scrollbar,
+  .dress-colors::-webkit-scrollbar {
+    display: none;
+  }
+
+  .dress-drawer {
+    flex: 0 0 52px;
+  }
+
+  .dress-color {
+    flex: 0 0 44px;
+  }
+
+  .dress-items {
+    grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+    grid-auto-rows: 72px;
+    gap: 8px;
   }
 
   .dress-color {

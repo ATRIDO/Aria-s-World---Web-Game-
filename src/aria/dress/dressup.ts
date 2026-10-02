@@ -15,6 +15,8 @@ const MAX_UNDO = 30;
 /** A finger that moved less than this (px) was a tap, not a drag. */
 const TAP_PX = 10;
 const SVG_NS = 'http://www.w3.org/2000/svg';
+/** Drawer buttons show one item that says what's inside. */
+const DRAWER_ICON: Partial<Record<Slot, string>> = { hair: 'curly', face: 'lipstick', ears: 'starstuds', hat: 'tiara', back: 'fairywings' };
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
 
 /** What one doll wears: item id per slot, and the colors chosen for each slot. */
@@ -109,7 +111,7 @@ export class DressUpApp {
       b.className = 'dress-drawer';
       b.dataset.slot = slot;
       b.setAttribute('aria-label', name);
-      b.appendChild(this.thumb(slot === 'hair' ? 'curly' : this.itemsFor(slot)[0].id, true));
+      b.appendChild(this.thumb(DRAWER_ICON[slot] ?? this.itemsFor(slot)[0].id, true));
       b.addEventListener('click', () => {
         this.sound.playPop();
         this.drawer = slot;
@@ -229,6 +231,22 @@ export class DressUpApp {
       svg.innerHTML = this.dollMarkup(d, { worn: { hair: id }, colors: {}, hairColor: icon ? '#6b4128' : this.look.hairColor })
         .replace(BODY, headOnly());
       svg.dataset.crop = 'head';
+    } else if ((item.slot === 'face' || item.slot === 'ears') && !icon) {
+      // Makeup and earrings are shown on her face.
+      svg.innerHTML = this.dollMarkup(d, { worn: { hair: this.look.worn.hair, [item.slot]: id }, colors: {}, hairColor: this.look.hairColor })
+        .replace(BODY, headOnly());
+      svg.dataset.crop = 'head';
+    } else if (item.slot === 'scene') {
+      // A window onto the place, the same shape as the stage.
+      svg.classList.remove('crop');
+      svg.setAttribute('viewBox', '-60 -20 320 340');
+      svg.setAttribute('preserveAspectRatio', 'xMidYMid slice');
+      svg.innerHTML = `<g style="--c1:${c1};--c2:${c2}">${item.back ?? ''}</g>`;
+    } else if (item.slot === 'ears') {
+      // Earrings come in pairs far apart: the drawer shows just one.
+      svg.classList.remove('crop');
+      svg.setAttribute('viewBox', '43 80 28 28');
+      svg.innerHTML = `<g style="--c1:${c1};--c2:${c2}">${item.front}</g>`;
     } else {
       svg.innerHTML = `<g style="--c1:${c1};--c2:${c2};--skin:${d.skin};--hair:${this.look.hairColor}">${item.back ?? ''}${item.front}</g>`;
     }
@@ -303,6 +321,10 @@ export class DressUpApp {
       ...(dress ? { dress: pick(this.itemsFor('dress')).id } : { top: pick(this.itemsFor('top')).id, bottom: pick(this.itemsFor('bottom')).id }),
       ...(Math.random() < 0.7 ? { hat: pick(this.itemsFor('hat')).id } : {}),
       ...(Math.random() < 0.6 ? { acc: pick(this.itemsFor('acc')).id } : {}),
+      ...(Math.random() < 0.5 ? { ears: pick(this.itemsFor('ears')).id } : {}),
+      ...(Math.random() < 0.4 ? { face: pick(this.itemsFor('face')).id } : {}),
+      ...(Math.random() < 0.3 ? { back: pick(this.itemsFor('back')).id } : {}),
+      ...(Math.random() < 0.7 ? { scene: pick(this.itemsFor('scene')).id } : {}),
     };
     look.colors = {};
     look.hairColor = pick(HAIR_COLORS);
