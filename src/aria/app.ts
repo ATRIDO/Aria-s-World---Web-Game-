@@ -1,7 +1,11 @@
 import { Sound } from './audio';
+import {
+  BRUSHES, CRAYON_COLORS, STAMPS, STAMP_SIZES, brushDabs, brushSpacing, crayonSvg, hslToRgb, rgbCss, shadesOf, stampDots,
+  type BrushKind, type RGB,
+} from './brushes';
 import { canvasToPng, composite, decodePng, encodePng, flattenOnWhite, loadImageData } from './images';
 import {
-  BRUSH_SIZES, CRAYONS, PAGES, PAINT_SCALE, isBlank, newSketchPage, sketchPages, type AnyPage, type Mode,
+  BRUSH_SIZES, PAGES, PAINT_SCALE, isBlank, newSketchPage, sketchPages, type AnyPage, type Mode,
 } from './pages';
 import type { RegionMap } from './regions';
 import { labelRegions, regionAt, regionBoxes } from './regions';
@@ -14,7 +18,9 @@ import { vfx } from './vfx';
 const MAX_UNDO = 10;
 const SAVE_DELAY_MS = 600;
 const SAVE_RETRY_MS = 3000;
-const ERASER_RGB: [number, number, number] = [255, 255, 255];
+const ERASER_RGB: RGB = [255, 255, 255];
+/** Colors picked with the magic pen, newest first. */
+const MAX_RECENT = 5;
 
 // Touch tuning, sized for small fingers.
 const LONG_PRESS_MS = 450;
@@ -29,7 +35,8 @@ const ZOOM_STEP = 1.6;
 /** Fill taps snap to an area this many page pixels away (e.g. tapping an earring's outline). */
 const FILL_REACH = 12;
 
-type Tool = 'fill' | 'crayon';
+type Tool = 'fill' | 'crayon' | 'stamp';
+const isTool = (t: unknown): t is Tool => t === 'fill' || t === 'crayon' || t === 'stamp';
 
 /** The child's choices, kept across visits and app updates (see prefs()). */
 const PREFS_KEY = 'arias-world:color-prefs';
@@ -38,7 +45,12 @@ interface ColorPrefs {
   mode?: Mode;
   /** Last page id in each mode. */
   pages?: Partial<Record<Mode, string>>;
+  /** Index in CRAYON_COLORS, or -1 for the magic pen's color. */
   crayon?: number;
+  custom?: RGB;
+  recent?: RGB[];
+  brush?: BrushKind;
+  stamp?: string;
   sizeIndex?: number;
   erasing?: boolean;
   tools?: Partial<Record<Mode, Tool>>;
@@ -92,6 +104,8 @@ interface Stroke {
   /** Distance travelled since the last dot. */
   carry: number;
   pending: number[];
+  /** Where the rainbow brush is in the rainbow. */
+  hue: number;
 }
 
 function $<T extends HTMLElement>(id: string): T {
@@ -118,6 +132,11 @@ export class ColoringApp {
   private sketches: AnyPage[] = sketchPages([]);
 
   private crayon = 0;
+  /** The magic pen's color (used when crayon is -1). */
+  private custom: RGB = [0x27, 0xb8, 0xb0];
+  private recent: RGB[] = [];
+  private brush: BrushKind = 'crayon';
+  private stamp = STAMPS[0].id;
   private sizeIndex = 1;
   private erasing = false;
 
@@ -145,12 +164,17 @@ export class ColoringApp {
     this.canvas = $<HTMLCanvasElement>('canvas');
     const p = this.saved;
     if (p.mode === 'color' || p.mode === 'sketch') this.mode = p.mode;
-    if (Number.isInteger(p.crayon) && p.crayon! >= 0 && p.crayon! < CRAYONS.length) this.crayon = p.crayon!;
+    if (Number.isInteger(p.crayon) && p.crayon! >= -1 && p.crayon! < CRAYON_COLORS.length) this.crayon = p.crayon!;
+    const isRgb = (c: unknown): c is RGB => Array.isArray(c) && c.length === 3 && c.every((v) => Number.isInteger(v) && v >= 0 && v <= 255);
+    if (isRgb(p.custom)) this.custom = p.custom;
+    if (Array.isArray(p.recent)) this.recent = p.recent.filter(isRgb).slice(0, MAX_RECENT);
+    if (BRUSHES.some((b) => b.id === p.brush)) this.brush = p.brush!;
+    if (STAMPS.some((st) => st.id === p.stamp)) this.stamp = p.stamp!;
     if (Number.isInteger(p.sizeIndex) && p.sizeIndex! >= 0 && p.sizeIndex! < BRUSH_SIZES.length) this.sizeIndex = p.sizeIndex!;
     this.erasing = p.erasing === true;
     for (const m of ['color', 'sketch'] as const) {
       const t = p.tools?.[m];
-      if (t === 'fill' || t === 'crayon') this.toolFor[m] = t;
+      if (isTool(t) && !(m === 'sketch' && t === 'fill')) this.toolFor[m] = t;
     }
   }
 
@@ -185,6 +209,10 @@ export class ColoringApp {
       mode: this.mode,
       pages,
       crayon: this.crayon,
+      custom: this.custom,
+      recent: this.recent,
+      brush: this.brush,
+      stamp: this.stamp,
       sizeIndex: this.sizeIndex,
       erasing: this.erasing,
       tools: { ...this.toolFor },
@@ -422,6 +450,17 @@ export class ColoringApp {
     return BRUSH_SIZES[this.sizeIndex].radius;
   }
 
+  /** The color being painted with. */
+  private get rgb(): RGB {
+    if (this.erasing) return ERASER_RGB;
+    return this.crayon >= 0 ? CRAYON_COLORS[this.crayon].rgb : this.custom;
+  }
+
+  /** The eraser always rubs out with the plain round brush. */
+  private get brushNow(): BrushKind {
+    return this.erasing ? 'crayon' : this.brush;
+  }
+
   // One finger: draw (Crayon) or tap to fill (Fill). Two fingers: pinch to zoom and pan.
   // Fill: press and hold zooms in on that spot; one-finger drag pans while zoomed.
   private onDown(e: PointerEvent): void {
@@ -436,7 +475,7 @@ export class ColoringApp {
     }
     if (this.pointers.size > 2 || this.gesture.kind !== 'none') return;
 
-    if (this.tool === 'fill') {
+    if (this.tool === 'fill' || this.tool === 'stamp') {
       const timer = window.setTimeout(() => this.onLongPress(e.pointerId), LONG_PRESS_MS);
       this.gesture = { kind: 'press', id: e.pointerId, x: e.clientX, y: e.clientY, timer };
       return;
@@ -446,7 +485,9 @@ export class ColoringApp {
     const region = regionAt(this.layers.regions, x / PAINT_SCALE, y / PAINT_SCALE);
     if (!region) return;
     this.pushUndo();
-    this.strokes.set(e.pointerId, { region, px: x, py: y, mx: x, my: y, rx: x, ry: y, carry: 0, pending: [x, y] });
+    this.strokes.set(e.pointerId, {
+      region, px: x, py: y, mx: x, my: y, rx: x, ry: y, carry: 0, pending: [x, y], hue: Math.random() * 360,
+    });
     this.gesture = { kind: 'stroke', id: e.pointerId, started: performance.now() };
     this.schedule();
   }
@@ -480,7 +521,7 @@ export class ColoringApp {
       // A light sparkle trail behind the crayon.
       if (!this.erasing && Math.hypot(e.clientX - this.trail.x, e.clientY - this.trail.y) > 28) {
         this.trail = { x: e.clientX, y: e.clientY };
-        vfx.sparkle(e.clientX, e.clientY, `rgb(${CRAYONS[this.crayon].rgb.join(',')})`);
+        vfx.sparkle(e.clientX, e.clientY, this.brushNow === 'rainbow' ? rgbCss(hslToRgb(stroke.hue, 0.85, 0.55)) : rgbCss(this.rgb));
       }
     }
   }
@@ -491,7 +532,10 @@ export class ColoringApp {
     if (g.kind === 'press' && g.id === e.pointerId) {
       clearTimeout(g.timer);
       // A tap, or a small slide: kids rarely hold perfectly still.
-      if (!g.moved || Math.hypot(e.clientX - g.x, e.clientY - g.y) < SLIDE_TAP_PX) this.fillAt(g.x, g.y);
+      if (!g.moved || Math.hypot(e.clientX - g.x, e.clientY - g.y) < SLIDE_TAP_PX) {
+        if (this.tool === 'stamp') this.stampAt(g.x, g.y);
+        else this.fillAt(g.x, g.y);
+      }
       this.gesture = { kind: 'none' };
     } else if (g.kind === 'stroke' && g.id === e.pointerId) {
       this.endStroke(e.pointerId);
@@ -525,13 +569,41 @@ export class ColoringApp {
     const region = regionAt(this.layers.regions, x / PAINT_SCALE, y / PAINT_SCALE, FILL_REACH);
     if (!region) return;
     this.pushUndo();
-    const rgb = this.erasing ? ERASER_RGB : CRAYONS[this.crayon].rgb;
+    const rgb = this.rgb;
     this.renderer.fill(region, rgb, this.erasing);
     this.sound.playPop();
     // Splash: a ring where the paint lands and a few droplets.
     const css = this.erasing ? '#ffffff' : `rgb(${rgb.join(',')})`;
     vfx.ring(clientX, clientY, this.erasing ? '#d9c2ca' : css, 80);
     vfx.burst(clientX, clientY, { count: 10, colors: [css, '#ffffff'], speed: 230, size: 6, gravity: 700, life: 0.6 });
+    this.unsaved = true;
+    this.schedule();
+    this.scheduleSave();
+  }
+
+  // ---------------------------------------------------------------------------
+  // Stamp tool
+  // ---------------------------------------------------------------------------
+
+  /** Stamps the chosen shape where the finger tapped, inside that area like the crayon. */
+  private stampAt(clientX: number, clientY: number): void {
+    if (!this.layers) return;
+    const [x, y] = this.toPaint({ clientX, clientY });
+    const region = regionAt(this.layers.regions, x / PAINT_SCALE, y / PAINT_SCALE, FILL_REACH);
+    if (!region) return;
+    const def = STAMPS.find((st) => st.id === this.stamp) ?? STAMPS[0];
+    const { points, radius } = stampDots(def, STAMP_SIZES[this.sizeIndex]);
+    const at = new Float32Array(points.length);
+    for (let i = 0; i < points.length; i += 2) {
+      at[i] = points[i] + x;
+      at[i + 1] = points[i + 1] + y;
+    }
+    this.pushUndo();
+    const rgb = this.rgb;
+    this.renderer.stamp({ points: at, region, rgb, radius, erase: this.erasing });
+    this.sound.playPop();
+    const css = this.erasing ? '#d9c2ca' : rgbCss(rgb);
+    vfx.burst(clientX, clientY, { count: 12, colors: [css, '#ffffff', '#ffd84a'], speed: 260, size: 6, gravity: 500, life: 0.6 });
     this.unsaved = true;
     this.schedule();
     this.scheduleSave();
@@ -682,7 +754,7 @@ export class ColoringApp {
    * (s.mx, s.my) to (ex, ey), bending toward (bx, by), and moves the end there.
    */
   private curve(s: Stroke, bx: number, by: number, ex: number, ey: number): void {
-    const spacing = Math.max(0.75, this.radius * DOT_SPACING);
+    const spacing = Math.max(0.75, this.radius * (this.brushNow === 'crayon' ? DOT_SPACING : brushSpacing(this.brushNow)));
     const ax = s.mx, ay = s.my;
     const n = Math.max(1, Math.ceil((Math.hypot(bx - ax, by - ay) + Math.hypot(ex - bx, ey - by)) / spacing));
     let x = ax, y = ay;
@@ -709,14 +781,11 @@ export class ColoringApp {
 
   private flushStroke(s: Stroke): void {
     if (!s.pending.length) return;
-    const crayon = CRAYONS[this.crayon];
-    this.renderer.stamp({
-      points: new Float32Array(s.pending),
-      region: s.region,
-      rgb: this.erasing ? ERASER_RGB : crayon.rgb,
-      radius: this.radius,
-      erase: this.erasing,
-    });
+    const { dabs, hue } = brushDabs(this.brushNow, s.pending, this.radius, this.rgb, s.hue);
+    for (const d of dabs) {
+      this.renderer.stamp({ points: new Float32Array(d.points), region: s.region, rgb: d.rgb, radius: d.radius, erase: this.erasing });
+    }
+    s.hue = hue;
     s.pending = [];
     this.unsaved = true;
   }
@@ -949,6 +1018,7 @@ export class ColoringApp {
     tap('zoom-out', () => this.resetZoom(true));
     tap('tool-fill', () => this.setTool('fill'));
     tap('tool-crayon', () => this.setTool('crayon'));
+    tap('tool-stamp', () => this.setTool('stamp'));
     const music = $<HTMLButtonElement>('music');
     const syncMusic = () => music.setAttribute('aria-pressed', String(this.sound.music));
     music.addEventListener('click', () => {
@@ -965,42 +1035,99 @@ export class ColoringApp {
     this.savePrefs();
     $<HTMLButtonElement>('tool-fill').setAttribute('aria-pressed', String(tool === 'fill'));
     $<HTMLButtonElement>('tool-crayon').setAttribute('aria-pressed', String(tool === 'crayon'));
+    $<HTMLButtonElement>('tool-stamp').setAttribute('aria-pressed', String(tool === 'stamp'));
   }
 
   private buildCrayons(): void {
     const box = $<HTMLDivElement>('crayons');
+    const tools = box.closest<HTMLElement>('.tools')!;
+    const eraser = $<HTMLButtonElement>('eraser');
+    const pen = $<HTMLButtonElement>('wheel-open');
     const buttons: HTMLButtonElement[] = [];
-    const select = (i: number) => {
-      this.erasing = i < 0;
-      if (i >= 0) this.crayon = i;
-      buttons.forEach((b, j) => b.setAttribute('aria-pressed', String(j === (i < 0 ? CRAYONS.length : i))));
+    const pop = (fn: () => void) => () => {
+      this.sound.playPop();
+      fn();
+    };
+
+    // Shows the chosen color everywhere: brush and stamp pictures, the magic pen.
+    const show = () => {
+      buttons.forEach((b, j) => b.setAttribute('aria-pressed', String(!this.erasing && j === this.crayon)));
+      eraser.setAttribute('aria-pressed', String(this.erasing));
+      pen.setAttribute('aria-pressed', String(!this.erasing && this.crayon < 0));
+      const c = this.erasing ? '#c9b3bb' : rgbCss(this.erasing ? ERASER_RGB : this.rgb);
+      tools.style.setProperty('--pen', c);
+      $('wheel-pen').style.setProperty('--custom', rgbCss(this.custom));
+      this.renderRecent(show);
       this.savePrefs();
     };
-    CRAYONS.forEach((c, i) => {
+    this.showColor = show;
+
+    CRAYON_COLORS.forEach((c, i) => {
       const b = document.createElement('button');
+      b.type = 'button';
       b.className = 'crayon';
       b.setAttribute('aria-label', c.name);
-      b.style.setProperty('--crayon', `rgb(${c.rgb.join(',')})`);
-      const img = document.createElement('img');
-      img.src = c.image;
-      img.alt = '';
-      img.draggable = false;
-      if (c.filter) img.style.filter = c.filter;
-      b.appendChild(img);
-      b.addEventListener('click', () => {
-        this.sound.playPop();
-        select(i);
-      });
+      b.innerHTML = crayonSvg(c.rgb);
+      b.addEventListener('click', pop(() => {
+        this.erasing = false;
+        this.crayon = i;
+        show();
+      }));
       box.appendChild(b);
       buttons.push(b);
     });
-    const eraser = $<HTMLButtonElement>('eraser');
-    eraser.addEventListener('click', () => {
-      this.sound.playPop();
-      select(-1);
+    eraser.addEventListener('click', pop(() => {
+      this.erasing = true;
+      show();
+    }));
+    pen.addEventListener('click', pop(() => {
+      this.openWheel();
+      this.erasing = false;
+      this.crayon = -1;
+      show();
+    }));
+
+    // Brushes and stamps: tapping one also switches to that tool.
+    const brushBox = $<HTMLDivElement>('brushes');
+    const brushButtons = BRUSHES.map((def) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'brush';
+      b.setAttribute('aria-label', def.name);
+      b.innerHTML = `<svg viewBox="0 0 60 44" aria-hidden="true">${def.icon}</svg>`;
+      b.addEventListener('click', pop(() => {
+        this.brush = def.id;
+        this.setTool('crayon');
+        syncBrushes();
+      }));
+      brushBox.appendChild(b);
+      return b;
     });
-    buttons.push(eraser);
-    select(this.erasing ? -1 : this.crayon);
+    const stampBox = $<HTMLDivElement>('stamps');
+    const stampButtons = STAMPS.map((def) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'brush stamp';
+      b.setAttribute('aria-label', `${def.name} stamp`);
+      b.innerHTML = `<svg viewBox="-4 -4 108 108" aria-hidden="true"><path d="${def.d}" fill="currentColor" fill-rule="${def.id === 'smile' ? 'evenodd' : 'nonzero'}"/></svg>`;
+      b.addEventListener('click', pop(() => {
+        this.stamp = def.id;
+        this.setTool('stamp');
+        syncBrushes();
+      }));
+      stampBox.appendChild(b);
+      return b;
+    });
+    const syncBrushes = () => {
+      brushButtons.forEach((b, i) => b.setAttribute('aria-pressed', String(BRUSHES[i].id === this.brush)));
+      stampButtons.forEach((b, i) => b.setAttribute('aria-pressed', String(STAMPS[i].id === this.stamp)));
+      this.savePrefs();
+    };
+    syncBrushes();
+    // The magic pen sits in the crayon box, in the spot after the last crayon.
+    box.appendChild(pen);
+    this.buildWheel();
+    show();
 
     const sizes = $<HTMLDivElement>('sizes');
     const sizeButtons = BRUSH_SIZES.map((s, i) => {
@@ -1011,13 +1138,133 @@ export class ColoringApp {
       b.addEventListener('click', () => {
         this.sound.playPop();
         this.sizeIndex = i;
-        this.setTool('crayon');
+        if (this.tool === 'fill') this.setTool('crayon');
+        this.savePrefs();
         sizeButtons.forEach((x, j) => x.setAttribute('aria-pressed', String(j === i)));
       });
       sizes.appendChild(b);
       return b;
     });
     sizeButtons.forEach((x, j) => x.setAttribute('aria-pressed', String(j === this.sizeIndex)));
+  }
+
+  /** Set by buildCrayons(): refreshes everything that shows the chosen color. */
+  private showColor: () => void = () => {};
+
+  /** The magic pen's last few colors, as dots beside it. */
+  private renderRecent(show: () => void): void {
+    const row = $<HTMLDivElement>('more-colors');
+    row.querySelectorAll('.recent').forEach((el) => el.remove());
+    this.recent.forEach((c) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'recent';
+      b.setAttribute('aria-label', 'A color you picked');
+      b.style.setProperty('--dot', rgbCss(c));
+      const same = !this.erasing && this.crayon < 0 && c.every((v, k) => v === this.custom[k]);
+      b.setAttribute('aria-pressed', String(same));
+      b.addEventListener('click', () => {
+        this.sound.playPop();
+        this.erasing = false;
+        this.crayon = -1;
+        this.custom = [...c];
+        show();
+      });
+      row.appendChild(b);
+    });
+  }
+
+  private buildWheel(): void {
+    const pop = $<HTMLDivElement>('wheel');
+    const disc = $<HTMLDivElement>('wheel-disc');
+    const knob = $<HTMLSpanElement>('wheel-knob');
+    const shades = $<HTMLDivElement>('wheel-shades');
+    let hue = 180, sat = 1, active = -1;
+
+    const pick = (c: RGB) => {
+      this.erasing = false;
+      this.crayon = -1;
+      this.custom = c;
+      knob.style.background = rgbCss(c);
+      this.showColor();
+    };
+    const renderShades = () => {
+      shades.replaceChildren();
+      for (const c of shadesOf(hue, sat)) {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'recent';
+        b.setAttribute('aria-label', 'Shade');
+        b.style.setProperty('--dot', rgbCss(c));
+        b.addEventListener('click', () => {
+          this.sound.playPop();
+          pick(c);
+          this.remember(c);
+        });
+        shades.appendChild(b);
+      }
+    };
+    // The wheel: hue around the circle, white in the middle, full color at the rim.
+    const at = (e: PointerEvent) => {
+      const r = disc.getBoundingClientRect();
+      const dx = e.clientX - (r.left + r.width / 2), dy = e.clientY - (r.top + r.height / 2);
+      const rad = r.width / 2;
+      const t = Math.min(1, Math.hypot(dx, dy) / rad);
+      hue = ((Math.atan2(dx, -dy) * 180) / Math.PI + 360) % 360;
+      sat = t;
+      const full = hslToRgb(hue, 1, 0.5);
+      // The knob stays on the wheel even when the finger slides off its edge.
+      const k = Math.min(1, rad / Math.max(1, Math.hypot(dx, dy)));
+      knob.style.left = `${50 + (dx * k * 50) / rad}%`;
+      knob.style.top = `${50 + (dy * k * 50) / rad}%`;
+      pick(full.map((v) => Math.round(v * t + 255 * (1 - t))) as RGB);
+      renderShades();
+    };
+    disc.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      active = e.pointerId;
+      disc.setPointerCapture(e.pointerId);
+      at(e);
+    });
+    disc.addEventListener('pointermove', (e) => {
+      if (e.pointerId === active) at(e);
+    });
+    const up = (e: PointerEvent) => {
+      if (e.pointerId !== active) return;
+      active = -1;
+      this.sound.playPop();
+      this.remember(this.custom);
+    };
+    disc.addEventListener('pointerup', up);
+    disc.addEventListener('pointercancel', up);
+    const close = () => {
+      pop.hidden = true;
+    };
+    $<HTMLButtonElement>('wheel-done').addEventListener('click', () => {
+      this.sound.playPop();
+      close();
+    });
+    pop.addEventListener('click', (e) => {
+      if (e.target === pop) close();
+    });
+    pop.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') close();
+    });
+    this.openWheel = () => {
+      knob.style.background = rgbCss(this.custom);
+      renderShades();
+      pop.hidden = false;
+      $<HTMLButtonElement>('wheel-done').focus();
+    };
+  }
+
+  /** Set by buildWheel(). */
+  private openWheel: () => void = () => {};
+
+  /** Keeps a magic-pen color among the recent dots. */
+  private remember(c: RGB): void {
+    this.recent = [c, ...this.recent.filter((x) => !x.every((v, k) => v === c[k]))].slice(0, MAX_RECENT);
+    this.showColor();
   }
 
   /** Thumbnails for the current mode's pages. */
