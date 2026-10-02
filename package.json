@@ -1,0 +1,21 @@
+{
+  "name": "arias-world",
+  "type": "module",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "vite -c vite.aria.config.ts",
+    "build": "tsc --noEmit && vite build -c vite.aria.config.ts",
+    "typecheck": "tsc --noEmit",
+    "build:wasm": "sh scripts/build-wasm.sh",
+    "test:wasm": "cargo test --manifest-path crates/regions/Cargo.toml"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.3",
+    "@types/qrcode": "^1.5.6",
+    "@webgpu/types": "^0.1.74",
+    "qrcode": "^1.5.4",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.1"
+  }
+}

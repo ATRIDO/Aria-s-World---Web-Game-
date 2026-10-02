@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Aria's World" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="theme-color" content="#ebced5" />
+    <meta name="description" content="Aria's World — a coloring game for kids." />
+    <title>Aria's World</title>
+    <link rel="icon" type="image/png" href="../src/aria/assets/ui/favicon.png" />
+    <link rel="apple-touch-icon" href="../src/aria/assets/ui/apple-touch-icon.png" />
+  </head>
+  <body>
+    <section id="start" class="screen start">
+      <video id="start-video" class="start-bg" autoplay muted loop playsinline preload="auto" aria-hidden="true"></video>
+      <div class="start-content">
+        <img id="start-logo" class="logo" alt="Aria's World" draggable="false" />
+        <div class="modes">
+          <button id="play" class="mode-card" type="button" data-mode="color" aria-label="Color a picture">
+            <img id="mode-color-img" alt="" draggable="false" />
+          </button>
+          <button id="play-sketch" class="mode-card" type="button" data-mode="sketch" aria-label="Draw on a blank page">
+            <img id="mode-sketch-img" alt="" draggable="false" />
+          </button>
+          <button id="play-trace" class="mode-card" type="button" data-mode="trace" aria-label="Trace letters and numbers">
+            <svg class="trace-card-art" viewBox="0 0 560 560" aria-hidden="true">
+              <defs>
+                <linearGradient id="tc-bg" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stop-color="#8fd0f0" />
+                  <stop offset="1" stop-color="#5aa7dc" />
+                </linearGradient>
+              </defs>
+              <rect x="40" y="96" width="400" height="400" rx="26" fill="url(#tc-bg)" />
+              <path d="M112 380 164 196l52 184M132 318h64" fill="none" stroke="#fff" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="2 30" />
+              <path d="M262 210 294 196v184" fill="none" stroke="#fff" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M340 222c14-26 70-30 72 10 2 34-70 78-78 148h82" fill="none" stroke="#ffe082" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="2 30" />
+              <circle cx="164" cy="196" r="18" fill="#3cb862" stroke="#fff" stroke-width="5" />
+              <text x="84" y="462" fill="#fff" font-family="ui-rounded, 'SF Pro Rounded', system-ui, sans-serif" font-size="56" font-weight="700" letter-spacing="2">trace</text>
+              <g transform="translate(392 300) rotate(35)">
+                <rect x="-26" y="-120" width="52" height="190" rx="10" fill="#ffc93c" stroke="#5b3a47" stroke-width="6" />
+                <rect x="-26" y="-120" width="52" height="34" rx="8" fill="#f48fb1" stroke="#5b3a47" stroke-width="6" />
+                <path d="M-26 70 0 124 26 70Z" fill="#ffe0b2" stroke="#5b3a47" stroke-width="6" stroke-linejoin="round" />
+                <path d="M-9 104 0 124 9 104Z" fill="#5b3a47" />
+              </g>
+              <path d="M488 70l10 22 24 3-18 16 5 24-21-12-21 12 5-24-18-16 24-3Z" fill="#ffd54f" />
+              <path d="M70 60l6 13 14 2-10 9 3 14-13-7-13 7 3-14-10-9 14-2Z" fill="#fff" />
+            </svg>
+          </button>
+          <button id="play-match" class="mode-card" type="button" data-mode="match" aria-label="Match the shapes">
+            <svg class="trace-card-art" viewBox="0 0 560 560" aria-hidden="true">
+              <defs>
+                <linearGradient id="mc-bg" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stop-color="#b9e88f" />
+                  <stop offset="1" stop-color="#6cc26a" />
+                </linearGradient>
+              </defs>
+              <rect x="40" y="96" width="400" height="400" rx="26" fill="url(#mc-bg)" />
+              <circle cx="130" cy="190" r="46" fill="#fff" fill-opacity="0.35" stroke="#fff" stroke-width="6" stroke-dasharray="14 12" />
+              <path d="M240 144h92v92h-92Z" fill="#fff" fill-opacity="0.35" stroke="#fff" stroke-width="6" stroke-dasharray="14 12" stroke-linejoin="round" />
+              <path d="M130 290 180 380H80Z" fill="#ffc933" stroke="#5b3a47" stroke-width="6" stroke-linejoin="round" />
+              <circle cx="286" cy="336" r="46" fill="#ec4840" stroke="#5b3a47" stroke-width="6" />
+              <circle cx="272" cy="330" r="5" fill="#5b3a47" /><circle cx="300" cy="330" r="5" fill="#5b3a47" />
+              <path d="M274 346q12 10 24 0" fill="none" stroke="#5b3a47" stroke-width="5" stroke-linecap="round" />
+              <path d="M392 150 430 214H354Z" fill="#fff" fill-opacity="0.35" stroke="#fff" stroke-width="6" stroke-dasharray="14 12" stroke-linejoin="round" />
+              <path d="M348 290h86v86h-86Z" fill="#3a80e8" stroke="#5b3a47" stroke-width="6" stroke-linejoin="round" transform="rotate(-12 391 333)" />
+              <path d="M230 300c-30-40-70-50-96-70" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" stroke-dasharray="2 18" />
+              <text x="84" y="462" fill="#fff" font-family="ui-rounded, 'SF Pro Rounded', system-ui, sans-serif" font-size="56" font-weight="700" letter-spacing="2">match</text>
+              <path d="M488 70l10 22 24 3-18 16 5 24-21-12-21 12 5-24-18-16 24-3Z" fill="#ffd54f" />
+              <path d="M70 60l6 13 14 2-10 9 3 14-13-7-13 7 3-14-10-9 14-2Z" fill="#fff" />
+            </svg>
+          </button>
+        </div>
+        <p id="start-status" class="status" role="status"></p>
+      </div>
+      <button id="install-open" class="icon install-open" type="button" aria-label="Play full screen: add to Home Screen" hidden>
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4" /><path d="M12 8v8M8 12h8" /></svg>
+      </button>
+    </section>
+
+    <section id="color" class="screen color" hidden>
+      <header class="bar">
+        <button id="home" class="icon" type="button" aria-label="Home">
+          <svg viewBox="0 0 24 24"><path d="M3 11 12 3l9 8M5 9.5V21h5v-6h4v6h5V9.5" /></svg>
+        </button>
+        <nav id="pages" class="pages" aria-label="Pictures"></nav>
+        <div class="actions">
+          <button id="undo" class="icon" type="button" aria-label="Undo" disabled>
+            <svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5M4 9h10a6 6 0 0 1 0 12h-3" /></svg>
+          </button>
+          <button id="redo" class="icon" type="button" aria-label="Redo" disabled>
+            <svg viewBox="0 0 24 24"><path d="m15 14 5-5-5-5M20 9H10a6 6 0 0 0 0 12h3" /></svg>
+          </button>
+          <button id="clear" class="icon" type="button" aria-label="Clear picture">
+            <svg viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 14h10l1-14M9 7V4h6v3" /></svg>
+          </button>
+          <button id="gallery-open" class="icon" type="button" aria-label="My pictures">
+            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2" /><circle cx="9" cy="10" r="2" /><path d="m21 16-5-5-9 9" /></svg>
+          </button>
+          <button id="finish" class="icon" type="button" aria-label="Save picture">
+            <svg viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M5 21h14" /></svg>
+          </button>
+          <button id="music" class="icon" type="button" aria-label="Music" aria-pressed="true">
+            <svg viewBox="0 0 24 24"><path d="M9 18V5l11-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="17" cy="16" r="3" /></svg>
+          </button>
+        </div>
+      </header>
+
+      <main class="stage">
+        <div class="paper">
+          <canvas id="canvas" aria-label="Coloring page"></canvas>
+          <button id="zoom-out" class="zoom-out" type="button" aria-label="Zoom out" hidden>
+            <svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5" /><path d="m15.5 15.5 5 5M7.5 10.5h6" /></svg>
+          </button>
+        </div>
+        <aside class="tools" aria-label="Crayons">
+          <div class="tool-toggle" role="group" aria-label="Tool">
+            <button id="tool-fill" class="tool" type="button" aria-label="Fill: tap an area to color it">
+              <svg viewBox="0 0 24 24"><path d="M5 11.5 11.5 5l7 7-6.5 6.5a2 2 0 0 1-2.8 0L5 14.3a2 2 0 0 1 0-2.8Z" /><path d="M5.5 12h13" /><path d="M20 15.5s1.5 2 1.5 3a1.5 1.5 0 0 1-3 0c0-1 1.5-3 1.5-3Z" class="drop" /><path d="M9 3.5 11.5 6" /></svg>
+            </button>
+            <button id="tool-crayon" class="tool" type="button" aria-label="Crayon: draw with your finger">
+              <svg viewBox="0 0 24 24"><path d="M15.5 3.5 20.5 8.5 9 20H4v-5L15.5 3.5Z" /><path d="m13 6 5 5" /><path d="M4 20l3-3" /></svg>
+            </button>
+          </div>
+          <div id="crayons" class="crayons"></div>
+          <div class="tools-row">
+            <button id="eraser" class="eraser" type="button" aria-label="Eraser">
+              <img id="eraser-img" alt="" draggable="false" />
+            </button>
+            <div id="sizes" class="sizes" role="group" aria-label="Brush size"></div>
+          </div>
+        </aside>
+      </main>
+      <p id="renderer-badge" class="badge" hidden></p>
+    </section>
+
+    <section id="match" class="screen match" hidden>
+      <header class="bar">
+        <button id="match-home" class="icon" type="button" aria-label="Home">
+          <svg viewBox="0 0 24 24"><path d="M3 11 12 3l9 8M5 9.5V21h5v-6h4v6h5V9.5" /></svg>
+        </button>
+        <div id="match-cats" class="trace-cats match-cats" role="group" aria-label="What to match"></div>
+        <div class="actions">
+          <span class="trace-stars" aria-label="Stars earned">
+            <svg viewBox="0 0 24 24"><path d="m12 2.5 2.9 6 6.6.8-4.9 4.5 1.3 6.5L12 17l-5.9 3.3 1.3-6.5L2.5 9.3l6.6-.8Z" /></svg>
+            <span id="match-star-count">0</span>
+          </span>
+          <button id="match-new" class="icon" type="button" aria-label="New shapes">
+            <svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4.5h4.5" /></svg>
+          </button>
+        </div>
+      </header>
+      <main class="match-stage">
+        <div id="match-board" class="match-board" aria-label="Drag each shape onto its outline"></div>
+      </main>
+    </section>
+
+    <section id="trace" class="screen trace" hidden>
+      <header class="bar">
+        <button id="trace-home" class="icon" type="button" aria-label="Home">
+          <svg viewBox="0 0 24 24"><path d="M3 11 12 3l9 8M5 9.5V21h5v-6h4v6h5V9.5" /></svg>
+        </button>
+        <div class="trace-cats" role="group" aria-label="What to trace">
+          <button class="cat" type="button" data-cat="upper" aria-label="Capital letters">ABC</button>
+          <button class="cat" type="button" data-cat="lower" aria-label="Small letters">abc</button>
+          <button class="cat" type="button" data-cat="numbers" aria-label="Numbers 1 to 100">123</button>
+        </div>
+        <div class="actions">
+          <span id="trace-combo" class="trace-combo" aria-label="In a row" hidden>
+            <svg viewBox="0 0 24 24"><ellipse cx="12" cy="9.5" rx="6.5" ry="8" /><path d="M10.5 17.5h3L12 20ZM12 20c-1.5 1.5 1 2.5 0 3.5" /></svg>
+            <span id="trace-combo-count">0</span>
+          </span>
+          <span class="trace-stars" aria-label="Stars earned">
+            <svg viewBox="0 0 24 24"><path d="m12 2.5 2.9 6 6.6.8-4.9 4.5 1.3 6.5L12 17l-5.9 3.3 1.3-6.5L2.5 9.3l6.6-.8Z" /></svg>
+            <span id="trace-star-count">0</span>
+          </span>
+          <button id="trace-reset" class="icon" type="button" aria-label="Start this one again">
+            <svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4.5h4.5" /></svg>
+          </button>
+          <button id="trace-voice" class="icon" type="button" aria-label="Voice" aria-pressed="true">
+            <svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4Z" /><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12" /></svg>
+          </button>
+        </div>
+      </header>
+      <main class="trace-stage">
+        <button id="trace-prev" class="nav-arrow" type="button" aria-label="Previous">
+          <svg viewBox="0 0 24 24"><path d="M15 5 8 12l7 7" /></svg>
+        </button>
+        <div class="trace-paper"><canvas id="trace-canvas" aria-label="Tracing page"></canvas></div>
+        <button id="trace-next" class="nav-arrow" type="button" aria-label="Next">
+          <svg viewBox="0 0 24 24"><path d="m9 5 7 7-7 7" /></svg>
+        </button>
+      </main>
+      <nav id="trace-strip" class="trace-strip" aria-label="Choose a letter or number"></nav>
+    </section>
+
+    <section id="gallery" class="screen gallery" hidden>
+      <header class="bar">
+        <button id="gallery-exit" class="icon" type="button" aria-label="Back to my picture">
+          <svg viewBox="0 0 24 24"><path d="M15 5 8 12l7 7" /></svg>
+        </button>
+      </header>
+      <main class="gallery-wall">
+        <div id="gallery-grid" class="gallery-grid" role="list" aria-label="My pictures"></div>
+        <div id="gallery-empty" class="gallery-empty" hidden>
+          <button id="gallery-start" class="gallery-start" type="button" aria-label="Color a picture">
+            <svg viewBox="0 0 200 220" aria-hidden="true">
+              <rect x="10" y="10" width="180" height="200" rx="18" fill="#fff" stroke="#e8b9c4" stroke-width="6" stroke-dasharray="14 12" />
+              <g transform="translate(100 112) rotate(35)">
+                <rect x="-16" y="-70" width="32" height="112" rx="7" fill="#ec5c48" />
+                <rect x="-16" y="-70" width="32" height="20" rx="6" fill="#b8402f" />
+                <path d="M-16 42 0 74 16 42Z" fill="#ffe0b2" />
+                <path d="M-6 62 0 74 6 62Z" fill="#ec5c48" />
+              </g>
+              <circle cx="152" cy="54" r="22" fill="#3cb862" />
+              <path d="M152 42v24M140 54h24" stroke="#fff" stroke-width="6" stroke-linecap="round" />
+            </svg>
+          </button>
+        </div>
+      </main>
+    </section>
+
+    <div id="gallery-view" class="dialog" hidden>
+      <div class="dialog-card gallery-card" role="dialog" aria-label="Your picture">
+        <img id="gallery-image" alt="Your picture" />
+        <div class="gallery-actions">
+          <button id="gallery-back" class="round secondary" type="button" aria-label="Back to all pictures">
+            <svg viewBox="0 0 24 24"><path d="M15 5 8 12l7 7" /></svg>
+          </button>
+          <button id="gallery-edit" class="round" type="button" aria-label="Color more">
+            <svg viewBox="0 0 24 24"><path d="m14.5 5.5 4 4L8 20H4v-4Z" /><path d="m12.5 7.5 4 4" /></svg>
+          </button>
+          <button id="gallery-share" class="round" type="button" aria-label="Save to Photos" hidden>
+            <svg viewBox="0 0 24 24"><path d="M12 3v12M7.5 7.5 12 3l4.5 4.5M5 12v8h14v-8" /></svg>
+          </button>
+          <a id="gallery-download" class="round button" aria-label="Download" hidden>
+            <svg viewBox="0 0 24 24"><path d="M12 3v12M7.5 10.5 12 15l4.5-4.5M5 20h14" /></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div id="finished" class="dialog" hidden>
+      <div class="dialog-card" role="dialog" aria-label="Your picture">
+        <img id="finished-image" alt="Your colored picture" />
+        <div class="dialog-actions">
+          <button id="finished-share" type="button" hidden>Save to Photos</button>
+          <a id="finished-download" class="button" href="#">Download</a>
+          <button id="finished-close" type="button" class="secondary">Keep coloring</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="install" class="dialog install" hidden>
+      <div class="dialog-card install-card" role="dialog" aria-modal="true" aria-labelledby="install-title">
+        <div class="install-head">
+          <img id="install-icon" class="install-icon" alt="" draggable="false" />
+          <div>
+            <h2 id="install-title"><span data-for="touch">Play full screen</span><span data-for="desktop">Play on a tablet or phone</span></h2>
+            <p class="install-lead" data-for="touch">Add Aria's World to your Home Screen. It opens like an app, full screen, and works offline.</p>
+            <p class="install-lead" data-for="desktop">Scan with the camera on an iPad, tablet or phone to play there.</p>
+          </div>
+        </div>
+
+        <p class="install-note" data-for="manual">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 7.5v.5" /></svg>
+          <span>Use your browser's own buttons for these steps (the arrow shows where). They can't be tapped here.</span>
+        </p>
+
+        <ol class="install-steps" data-for="ios">
+          <li data-for="inapp">
+            <span class="step-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="m15.5 8.5-2.3 4.7-4.7 2.3 2.3-4.7 4.7-2.3Z" /></svg></span>
+            <span>Open this page in <b>Safari</b></span>
+          </li>
+          <li>
+            <span class="step-icon"><svg viewBox="0 0 24 24"><path d="M12 3v12M8 7l4-4 4 4" /><path d="M8 10H6v11h12V10h-2" /></svg></span>
+            <span>Tap <b>Share</b> in the browser's toolbar <small>(on newer iPhones and iPads, tap <b>•••</b> first)</small></span>
+          </li>
+          <li>
+            <span class="step-icon"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4" /><path d="M12 8.5v7M8.5 12h7" /></svg></span>
+            <span>Tap <b>Add to Home Screen</b> <small>(scroll down or tap <b>View More</b> if you don't see it)</small></span>
+          </li>
+          <li>
+            <span class="step-icon"><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5" /></svg></span>
+            <span>Tap <b>Add</b>, then open <b>Aria's World</b> from the Home Screen</span>
+          </li>
+        </ol>
+
+        <ol class="install-steps" data-for="android">
+          <li>
+            <span class="step-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="5.5" r="1.2" /><circle cx="12" cy="12" r="1.2" /><circle cx="12" cy="18.5" r="1.2" /></svg></span>
+            <span>Open the browser menu <b>⋮</b> <small>(top right)</small></span>
+          </li>
+          <li>
+            <span class="step-icon"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4" /><path d="M12 8.5v7M8.5 12h7" /></svg></span>
+            <span>Tap <b>Add to Home screen</b> or <b>Install</b></span>
+          </li>
+        </ol>
+
+        <img id="install-qr" class="install-qr" data-for="desktop" alt="QR code that opens Aria's World" draggable="false" />
+
+        <div class="dialog-actions">
+          <button id="install-add" type="button" data-for="prompt">
+            <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4" /><path d="M12 8.5v7M8.5 12h7" /></svg>
+            Add to Home Screen
+          </button>
+          <button id="install-close" type="button" class="secondary">
+            <svg viewBox="0 0 24 24"><path d="M8 5.5v13l10-6.5-10-6.5Z" /></svg>
+            Play in the browser
+          </button>
+        </div>
+      </div>
+      <div class="install-pointer" data-for="manual" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M12 4v16M5 13l7 7 7-7" /></svg>
+        <span id="install-pointer-label"></span>
+      </div>
+    </div>
+
+    <script type="module" src="../src/aria/main.ts"></script>
+  </body>
+</html>
