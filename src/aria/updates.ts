@@ -12,6 +12,7 @@ export type Screen =
   | { name: 'match' }
   | { name: 'dress' }
   | { name: 'tug' }
+  | { name: 'memory' }
   | { name: 'gallery'; mode: Mode }
   | { name: 'color'; mode: Mode; view?: ViewState };
 
