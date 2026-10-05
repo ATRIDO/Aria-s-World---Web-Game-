@@ -129,6 +129,29 @@
               <path d="M488 70l10 22 24 3-18 16 5 24-21-12-21 12 5-24-18-16 24-3Z" fill="#ffd54f" />
             </svg>
           </button>
+          <button id="play-memory" class="mode-card" type="button" data-mode="memory" aria-label="Memory: find the pairs">
+            <svg class="trace-card-art" viewBox="0 0 560 560" aria-hidden="true">
+              <defs>
+                <linearGradient id="mm-bg" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stop-color="#d8c4ff" />
+                  <stop offset="1" stop-color="#8f6ae8" />
+                </linearGradient>
+              </defs>
+              <rect x="40" y="96" width="400" height="400" rx="26" fill="url(#mm-bg)" />
+              <g stroke="#5b3a47" stroke-width="6" stroke-linejoin="round">
+                <rect x="96" y="128" width="130" height="134" rx="18" fill="#ff8fc8" />
+                <rect x="254" y="128" width="130" height="134" rx="18" fill="#fff" />
+                <rect x="96" y="280" width="130" height="134" rx="18" fill="#fff" transform="rotate(-6 161 347)" />
+                <rect x="254" y="280" width="130" height="134" rx="18" fill="#ff8fc8" />
+              </g>
+              <path d="m161 168 10 21 23 3-17 15 5 23-21-12-21 12 5-23-17-15 23-3Z" fill="#fff" />
+              <path d="m319 320 10 21 23 3-17 15 5 23-21-12-21 12 5-23-17-15 23-3Z" fill="#fff" />
+              <path d="M289 192c0-24 30-34 30-10 0-24 30-14 30 10 0 18-30 32-30 32s-30-14-30-32Z" fill="#ec4840" stroke="#5b3a47" stroke-width="5" />
+              <path d="M131 344c0-24 30-34 30-10 0-24 30-14 30 10 0 18-30 32-30 32s-30-14-30-32Z" fill="#ec4840" stroke="#5b3a47" stroke-width="5" transform="rotate(-6 161 347)" />
+              <text x="84" y="462" fill="#fff" font-family="ui-rounded, 'SF Pro Rounded', system-ui, sans-serif" font-size="56" font-weight="700" letter-spacing="2">memory</text>
+              <path d="M488 70l10 22 24 3-18 16 5 24-21-12-21 12 5-24-18-16 24-3Z" fill="#ffd54f" />
+            </svg>
+          </button>
         </div>
         <p id="start-status" class="status" role="status"></p>
       </div>
@@ -286,6 +309,27 @@
             <svg viewBox="0 0 48 24"><circle cx="14" cy="7" r="4.5" /><path d="M6 21a8 8 0 0 1 16 0" /><circle cx="34" cy="7" r="4.5" /><path d="M26 21a8 8 0 0 1 16 0" /></svg>
           </button>
         </div>
+      </main>
+    </section>
+
+    <section id="memory" class="screen match memory" hidden>
+      <header class="bar">
+        <button id="memory-home" class="icon" type="button" aria-label="Home">
+          <svg viewBox="0 0 24 24"><path d="M3 11 12 3l9 8M5 9.5V21h5v-6h4v6h5V9.5" /></svg>
+        </button>
+        <div id="memory-cats" class="trace-cats match-cats" role="group" aria-label="Which pictures"></div>
+        <div class="actions">
+          <span class="trace-stars" aria-label="Stars earned">
+            <svg viewBox="0 0 24 24"><path d="m12 2.5 2.9 6 6.6.8-4.9 4.5 1.3 6.5L12 17l-5.9 3.3 1.3-6.5L2.5 9.3l6.6-.8Z" /></svg>
+            <span id="memory-star-count">0</span>
+          </span>
+          <button id="memory-new" class="icon" type="button" aria-label="Deal new cards">
+            <svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4.5h4.5" /></svg>
+          </button>
+        </div>
+      </header>
+      <main class="match-stage">
+        <div id="memory-board" class="match-board memory-board" aria-label="Turn over two cards to find a pair"></div>
       </main>
     </section>
 

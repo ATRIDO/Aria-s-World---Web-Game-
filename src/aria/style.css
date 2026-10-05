@@ -113,8 +113,8 @@ button:focus-visible,
 }
 
 .mode-card {
-  /* Six cards fit in one row on iPad landscape and laptops; phones show three per row. */
-  width: clamp(106px, 14vw, 210px);
+  /* Seven cards fit in one row on iPad landscape and laptops; phones show three per row. */
+  width: clamp(100px, 12vw, 190px);
   padding: 0;
   background: none;
   border-radius: 24px;
@@ -1410,14 +1410,14 @@ body:not([data-tool='stamp']) #stamps {
 }
 
 /* Doll art colors (dress-up, its drag ghost, and games that use the dolls). */
-:is(#dress, .dress-ghost, #tug) .skin { fill: var(--skin); }
-:is(#dress, .dress-ghost, #tug) .skin-stroke { stroke: var(--skin); }
-:is(#dress, .dress-ghost, #tug) .hair { fill: var(--hair); }
-:is(#dress, .dress-ghost, #tug) .eye { fill: var(--eyes); }
-:is(#dress, .dress-ghost, #tug) .c1 { fill: var(--c1, #ff6fae); }
-:is(#dress, .dress-ghost, #tug) .c2 { fill: var(--c2, #ffffff); }
-:is(#dress, .dress-ghost, #tug) .c1-stroke { stroke: var(--c1, #ff6fae); }
-:is(#dress, .dress-ghost, #tug) .c2-stroke { stroke: var(--c2, #ffffff); }
+:is(#dress, .dress-ghost, #tug, #memory) .skin { fill: var(--skin); }
+:is(#dress, .dress-ghost, #tug, #memory) .skin-stroke { stroke: var(--skin); }
+:is(#dress, .dress-ghost, #tug, #memory) .hair { fill: var(--hair); }
+:is(#dress, .dress-ghost, #tug, #memory) .eye { fill: var(--eyes); }
+:is(#dress, .dress-ghost, #tug, #memory) .c1 { fill: var(--c1, #ff6fae); }
+:is(#dress, .dress-ghost, #tug, #memory) .c2 { fill: var(--c2, #ffffff); }
+:is(#dress, .dress-ghost, #tug, #memory) .c1-stroke { stroke: var(--c1, #ff6fae); }
+:is(#dress, .dress-ghost, #tug, #memory) .c2-stroke { stroke: var(--c2, #ffffff); }
 
 /* Something just put on bounces in. */
 .dress-doll-stage .layer.pop {
@@ -2443,5 +2443,117 @@ html.resuming body {
 
   .tug-doll {
     transition: none;
+  }
+}
+
+/* ------------------------------------------------------------ Memory */
+
+.memory-board {
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 4), var(--card, 120px));
+  grid-auto-rows: calc(var(--card, 120px) * 1.2);
+  gap: var(--gap, 10px);
+  place-content: center;
+  background: linear-gradient(#f3edff, #fff);
+}
+
+.memory-card {
+  position: relative;
+  padding: 0;
+  background: none;
+  perspective: 800px;
+  animation: memory-deal 0.35s var(--deal, 0ms) both ease-out;
+}
+
+.memory-inner {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transition: transform 0.35s ease-out;
+}
+
+.memory-card.up .memory-inner {
+  transform: rotateY(180deg);
+}
+
+.memory-back,
+.memory-front {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 18px;
+  border: 4px solid #5b3a47;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  box-shadow: 0 4px 0 rgba(91, 58, 71, 0.25);
+}
+
+.memory-back {
+  background:
+    radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.35) 0 10%, transparent 11%) 0 0 / 34px 34px,
+    linear-gradient(135deg, #b28cff, #7b55e0);
+}
+
+.memory-back svg {
+  width: 46%;
+  height: 46%;
+  fill: #ffd84a;
+  stroke: #5b3a47;
+  stroke-width: 1.4;
+  stroke-linejoin: round;
+}
+
+.memory-front {
+  background: #fff;
+  transform: rotateY(180deg);
+  padding: 8%;
+}
+
+.memory-front svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.memory-card.matched .memory-front {
+  border-color: #3ab460;
+  background: #effbe9;
+  animation: memory-found 0.5s ease-out;
+}
+
+@keyframes memory-deal {
+  from { transform: translateY(30px) scale(0.6); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+
+@keyframes memory-found {
+  0% { transform: rotateY(180deg) scale(1); }
+  50% { transform: rotateY(180deg) scale(1.12); }
+  100% { transform: rotateY(180deg) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .memory-card,
+  .memory-card.matched .memory-front {
+    animation: none;
+  }
+
+  .memory-inner {
+    transition: none;
+  }
+}
+
+/* Phones: home and the stars stay on the first row; the pictures get a row of their own. */
+@media (max-width: 560px) {
+  .memory .actions {
+    margin-left: auto;
+  }
+
+  .memory #memory-cats {
+    order: 3;
+    flex: 1 0 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
   }
 }
