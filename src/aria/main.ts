@@ -9,6 +9,7 @@ import modeColor from './assets/ui/mode-color.png';
 import modeSketch from './assets/ui/mode-sketch.png';
 import type { Mode } from './pages';
 import { DressUpApp } from './dress/dressup';
+import { FeedApp } from './feed/feed';
 import { MatchingApp } from './match/matcher';
 import { MemoryApp } from './memory/memory';
 import { TracingApp } from './trace/tracer';
@@ -55,6 +56,8 @@ const tugging = new TugApp(app.sound);
 const tug = byId<HTMLElement>('tug');
 const memorizing = new MemoryApp(app.sound);
 const memory = byId<HTMLElement>('memory');
+const feeding = new FeedApp(app.sound);
+const feed = byId<HTMLElement>('feed');
 installTapPop();
 let ready: Promise<void> | null = null;
 
@@ -65,7 +68,7 @@ const gallery = new Gallery(
   () => void openColoring(() => app.setMode('color'), 'Getting the crayons…'),
 );
 
-type StartChoice = Mode | 'trace' | 'match' | 'dress' | 'tug' | 'memory';
+type StartChoice = Mode | 'trace' | 'match' | 'dress' | 'tug' | 'memory' | 'feed';
 
 async function play(mode: StartChoice): Promise<void> {
   app.sound.unlock();
@@ -103,6 +106,13 @@ async function play(mode: StartChoice): Promise<void> {
     memory.hidden = false;
     video.pause();
     memorizing.open();
+    return;
+  }
+  if (mode === 'feed') {
+    start.hidden = true;
+    feed.hidden = false;
+    video.pause();
+    feeding.open();
     return;
   }
   await openColoring(() => app.setMode(mode), mode === 'sketch' ? 'Sharpening the crayons…' : 'Getting the crayons…');
@@ -162,6 +172,7 @@ function goHome(): void {
   dressing.close();
   tugging.close();
   memorizing.close();
+  feeding.close();
   gallery.close();
   color.hidden = true;
   trace.hidden = true;
@@ -169,6 +180,7 @@ function goHome(): void {
   dress.hidden = true;
   tug.hidden = true;
   memory.hidden = true;
+  feed.hidden = true;
   galleryScreen.hidden = true;
   start.hidden = false;
   video.play().catch(() => {});
@@ -181,6 +193,7 @@ byId<HTMLButtonElement>('match-home').addEventListener('click', goHome);
 byId<HTMLButtonElement>('dress-home').addEventListener('click', goHome);
 byId<HTMLButtonElement>('tug-home').addEventListener('click', goHome);
 byId<HTMLButtonElement>('memory-home').addEventListener('click', goHome);
+byId<HTMLButtonElement>('feed-home').addEventListener('click', goHome);
 // The Gallery opens from the Color/Sketch toolbar and goes back to the picture.
 byId<HTMLButtonElement>('gallery-open').addEventListener('click', () => {
   app.sound.playPop();
@@ -203,6 +216,7 @@ function currentScreen(): Screen {
   if (!dress.hidden) return { name: 'dress' };
   if (!tug.hidden) return { name: 'tug' };
   if (!memory.hidden) return { name: 'memory' };
+  if (!feed.hidden) return { name: 'feed' };
   if (!galleryScreen.hidden) return { name: 'gallery', mode: app.currentMode };
   if (!color.hidden) return { name: 'color', mode: app.currentMode, view: app.viewState };
   return { name: 'start' };
@@ -231,6 +245,9 @@ if (resume && resume.name !== 'start') {
   } else if (resume.name === 'memory') {
     memory.hidden = false;
     memorizing.open();
+  } else if (resume.name === 'feed') {
+    feed.hidden = false;
+    feeding.open();
   } else {
     color.hidden = false;
     const mode = resume.mode ?? app.currentMode;

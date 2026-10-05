@@ -152,6 +152,41 @@
               <path d="M488 70l10 22 24 3-18 16 5 24-21-12-21 12 5-24-18-16 24-3Z" fill="#ffd54f" />
             </svg>
           </button>
+          <button id="play-feed" class="mode-card" type="button" data-mode="feed" aria-label="Feed the puppy: count the treats">
+            <svg class="trace-card-art" viewBox="0 0 560 560" aria-hidden="true">
+              <defs>
+                <linearGradient id="fd-bg" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stop-color="#bfeaff" />
+                  <stop offset="1" stop-color="#5cb8e8" />
+                </linearGradient>
+              </defs>
+              <rect x="40" y="96" width="400" height="400" rx="26" fill="url(#fd-bg)" />
+              <g stroke="#5b3a47" stroke-width="6" stroke-linejoin="round">
+                <path d="M146 196C110 184 86 232 96 276c6 22 32 24 42 6 10-18 14-52 18-76Z" fill="#a8683e" />
+                <path d="M334 196c36-12 60 36 50 80-6 22-32 24-42 6-10-18-14-52-18-76Z" fill="#a8683e" />
+                <circle cx="240" cy="262" r="96" fill="#f2c48d" />
+                <ellipse cx="240" cy="306" rx="48" ry="34" fill="#fff3e0" />
+                <path d="M222 286h36c0 12-10 20-18 20s-18-8-18-20Z" fill="#3b2a30" />
+              </g>
+              <ellipse cx="282" cy="246" rx="30" ry="28" fill="#dda06a" />
+              <circle cx="206" cy="250" r="15" fill="#3b2a30" /><circle cx="276" cy="250" r="15" fill="#3b2a30" />
+              <circle cx="211" cy="244" r="5" fill="#fff" /><circle cx="281" cy="244" r="5" fill="#fff" />
+              <path d="M240 306v10M220 318q10 10 20-2q10 12 20 2" fill="none" stroke="#5b3a47" stroke-width="6" stroke-linecap="round" />
+              <circle cx="176" cy="292" r="12" fill="#ff9fb8" opacity="0.7" /><circle cx="304" cy="292" r="12" fill="#ff9fb8" opacity="0.7" />
+              <rect x="200" y="112" width="80" height="62" rx="20" fill="#fff" stroke="#5b3a47" stroke-width="6" />
+              <path d="m228 172 12 14 12-14" fill="#fff" stroke="#5b3a47" stroke-width="6" stroke-linejoin="round" />
+              <path d="M231 170h18" stroke="#fff" stroke-width="8" />
+              <text x="240" y="160" text-anchor="middle" fill="#e5634c" font-family="ui-rounded, 'SF Pro Rounded', system-ui, sans-serif" font-size="48" font-weight="800">3</text>
+              <g fill="#fff6e4" stroke="#5b3a47" stroke-width="5" transform="rotate(-20 380 390)">
+                <rect x="354" y="382" width="52" height="16" rx="5" /><circle cx="354" cy="380" r="10" /><circle cx="354" cy="400" r="10" /><circle cx="406" cy="380" r="10" /><circle cx="406" cy="400" r="10" />
+              </g>
+              <g fill="#fff6e4" transform="rotate(-20 380 390)">
+                <rect x="354" y="382" width="52" height="16" rx="5" /><circle cx="354" cy="380" r="10" /><circle cx="354" cy="400" r="10" /><circle cx="406" cy="380" r="10" /><circle cx="406" cy="400" r="10" />
+              </g>
+              <text x="84" y="462" fill="#fff" font-family="ui-rounded, 'SF Pro Rounded', system-ui, sans-serif" font-size="56" font-weight="700" letter-spacing="2">puppy</text>
+              <path d="M488 70l10 22 24 3-18 16 5 24-21-12-21 12 5-24-18-16 24-3Z" fill="#ffd54f" />
+            </svg>
+          </button>
         </div>
         <p id="start-status" class="status" role="status"></p>
       </div>
@@ -330,6 +365,27 @@
       </header>
       <main class="match-stage">
         <div id="memory-board" class="match-board memory-board" aria-label="Turn over two cards to find a pair"></div>
+      </main>
+    </section>
+
+    <section id="feed" class="screen match feed" hidden>
+      <header class="bar">
+        <button id="feed-home" class="icon" type="button" aria-label="Home">
+          <svg viewBox="0 0 24 24"><path d="M3 11 12 3l9 8M5 9.5V21h5v-6h4v6h5V9.5" /></svg>
+        </button>
+        <div id="feed-foods" class="trace-cats match-cats" role="group" aria-label="Which treat"></div>
+        <div class="actions">
+          <span class="trace-stars" aria-label="Stars earned">
+            <svg viewBox="0 0 24 24"><path d="m12 2.5 2.9 6 6.6.8-4.9 4.5 1.3 6.5L12 17l-5.9 3.3 1.3-6.5L2.5 9.3l6.6-.8Z" /></svg>
+            <span id="feed-star-count">0</span>
+          </span>
+          <button id="feed-new" class="icon" type="button" aria-label="New number">
+            <svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4.5h4.5" /></svg>
+          </button>
+        </div>
+      </header>
+      <main class="match-stage">
+        <div id="feed-board" class="match-board feed-board" aria-label="Give the puppy as many treats as the number says"></div>
       </main>
     </section>
 

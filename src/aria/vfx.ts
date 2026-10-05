@@ -2,7 +2,7 @@
 // pool, and a requestAnimationFrame loop that only runs while something is
 // animating. Everything is skipped when the device asks for reduced motion.
 
-type Shape = 'dot' | 'star' | 'ring' | 'confetti';
+type Shape = 'dot' | 'star' | 'ring' | 'confetti' | 'heart';
 
 interface Particle {
   x: number;
@@ -173,6 +173,9 @@ class Vfx {
       case 'star':
         star(g, p.x, p.y, p.size * (1 - t * 0.3), p.angle);
         break;
+      case 'heart':
+        heart(g, p.x, p.y, p.size * (1 - t * 0.3));
+        break;
       case 'confetti':
         g.save();
         g.translate(p.x, p.y);
@@ -195,6 +198,14 @@ export function star(g: CanvasRenderingContext2D, x: number, y: number, r: numbe
     g.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr);
   }
   g.closePath();
+  g.fill();
+}
+
+function heart(g: CanvasRenderingContext2D, x: number, y: number, r: number): void {
+  g.beginPath();
+  g.moveTo(x, y + r * 0.9);
+  g.bezierCurveTo(x - r * 1.6, y - r * 0.2, x - r * 0.6, y - r * 1.3, x, y - r * 0.45);
+  g.bezierCurveTo(x + r * 0.6, y - r * 1.3, x + r * 1.6, y - r * 0.2, x, y + r * 0.9);
   g.fill();
 }
 
