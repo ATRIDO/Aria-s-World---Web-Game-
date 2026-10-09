@@ -1490,6 +1490,8 @@ body:not([data-tool='stamp']) #stamps {
 
 .dress-color:disabled {
   opacity: 0.35;
+  filter: grayscale(0.6);
+  border-style: dashed;
 }
 
 /* The clothes in the open drawer: big, easy to tap or drag. */
@@ -1545,31 +1547,42 @@ body:not([data-tool='stamp']) #stamps {
   }
 
   .dress-items {
-    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-    grid-auto-rows: 84px;
+    grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+    grid-auto-rows: 112px;
     flex: 0 0 auto;
   }
 }
 
 @media (max-width: 560px) {
-  /* One sliding row each for drawers and colors, so the doll keeps her room. */
-  .dress-drawers,
+  /* Home on the left and the buttons on the right share one row; the dolls get the next. */
+  .dress .actions {
+    margin-left: auto;
+  }
+
+  .dress-dolls {
+    order: 3;
+    flex: 1 0 100%;
+  }
+
+  /* Every drawer shows at once (two rows); only the colors slide sideways. */
+  .dress-drawers {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    flex: 0 0 auto;
+  }
+
   .dress-colors {
-    display: flex;
     flex-wrap: nowrap;
     overflow-x: auto;
     scrollbar-width: none;
     overscroll-behavior-x: contain;
     flex: 0 0 auto;
+    /* Fades out on the right: there are more colors to slide to. */
+    mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent);
+    padding-right: 28px;
   }
 
-  .dress-drawers::-webkit-scrollbar,
   .dress-colors::-webkit-scrollbar {
     display: none;
-  }
-
-  .dress-drawer {
-    flex: 0 0 52px;
   }
 
   .dress-color {
@@ -1577,8 +1590,8 @@ body:not([data-tool='stamp']) #stamps {
   }
 
   .dress-items {
-    grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
-    grid-auto-rows: 72px;
+    grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+    grid-auto-rows: 88px;
     gap: 8px;
   }
 

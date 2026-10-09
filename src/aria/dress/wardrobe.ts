@@ -97,7 +97,8 @@ export const HAIR_COLORS = ['#2b2230', '#6b4128', '#c58a4a', '#f2c75c', '#ff8fc8
 const I = (id: string, slot: Slot, name: string, colors: [string, string], front: string, back?: string): Item =>
   ({ id, slot, name, colors, front, back });
 
-const SLEEVES_SHORT = `<path d="M74 132 60 152l11 6 9-14z" class="c1" ${O}/><path d="M126 132l14 20-11 6-9-14z" class="c1" ${O}/>`;
+// Cap sleeves reach well under the bodice (which is drawn over them), so no skin or underwear shows at the shoulder.
+const SLEEVES_SHORT = `<path d="M73 129Q62 131 57 153L72 161Q81 152 83 140Z" class="c1" ${O}/><path d="M127 129Q138 131 143 153L128 161Q119 152 117 140Z" class="c1" ${O}/>`;
 const SLEEVES_LONG = `${limb(LEFT_ARM, 'c1', 15)}${limb(RIGHT_ARM, 'c1', 15)}
   <circle cx="60" cy="214" r="6" class="c2" ${O}/><circle cx="140" cy="214" r="6" class="c2" ${O}/>`;
 
