@@ -81,6 +81,8 @@ const TITLES: Record<string, string> = {
   art14: 'Party dolls',
   art15: 'Best friends',
   art16: 'Shape friends',
+  art17: 'Princess and castle',
+  art18: 'Pop star',
 };
 
 export const PAGES: PageDef[] = Object.keys(bases)
