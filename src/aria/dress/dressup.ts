@@ -5,6 +5,7 @@ import {
   type Look,
 } from './art';
 import { dollOf, loadFriends, saveFriends, type Friend } from './friends';
+import { PAINTED_HAIR, PAINTED_HEAD_BOX, PAINTED_ITEMS, paintedImage } from './painted';
 import { BODY, CLOTH_COLORS, DOLLS, DRAWERS, HAIR, HAIR_COLORS, ITEMS, type Doll, type Item, type Slot } from './wardrobe';
 
 // Dress-up: pick a doll, open a drawer (hair, dresses, tops, ...), and tap or
@@ -98,7 +99,6 @@ export class DressUpApp {
       b.className = 'dress-drawer';
       b.dataset.slot = slot;
       b.setAttribute('aria-label', name);
-      b.appendChild(this.thumb(DRAWER_ICON[slot] ?? this.itemsFor(slot)[0].id, true));
       b.addEventListener('click', () => {
         this.sound.playPop();
         this.drawer = slot;
@@ -219,8 +219,18 @@ export class DressUpApp {
     }, 900);
   }
 
+  /** What she can wear from a drawer: painted dolls get painted pieces, drawn dolls get drawn ones; places suit both. */
   private itemsFor(slot: Slot): Item[] {
-    return slot === 'hair' ? HAIR : ITEMS.filter((i) => i.slot === slot);
+    const painted = !!this.dollDef.body;
+    if (slot === 'hair') return painted ? PAINTED_HAIR : HAIR;
+    return [...ITEMS, ...PAINTED_ITEMS].filter((i) => i.slot === slot && (slot === 'scene' || !!i.painted === painted));
+  }
+
+  /** The one picture on a drawer's button that says what's inside. */
+  private drawerIcon(slot: Slot): string {
+    const items = this.itemsFor(slot);
+    if (this.dollDef.body) return items[0].id;
+    return DRAWER_ICON[slot] ?? items[0].id;
   }
 
   private render(): void {
@@ -244,8 +254,19 @@ export class DressUpApp {
   }
 
   private renderDrawer(): void {
-    $('dress-drawers').querySelectorAll<HTMLElement>('.dress-drawer').forEach((b) =>
-      b.setAttribute('aria-pressed', String(b.dataset.slot === this.drawer)));
+    // Only drawers with something in them for this doll are shown (painted dolls have fewer, for now).
+    const open = DRAWERS.filter((d) => this.itemsFor(d.slot).length);
+    if (!open.some((d) => d.slot === this.drawer)) this.drawer = open[0].slot;
+    $('dress-drawers').querySelectorAll<HTMLElement>('.dress-drawer').forEach((b) => {
+      const slot = b.dataset.slot as Slot;
+      const there = open.some((d) => d.slot === slot);
+      b.hidden = !there;
+      b.setAttribute('aria-pressed', String(slot === this.drawer));
+      if (there && b.dataset.icon !== `${this.dollDef.id}:${this.drawerIcon(slot)}`) {
+        b.dataset.icon = `${this.dollDef.id}:${this.drawerIcon(slot)}`;
+        b.replaceChildren(this.thumb(this.drawerIcon(slot), true));
+      }
+    });
 
     // Color dots: hair colors in the hair drawer, cloth colors elsewhere.
     const dots = $('dress-colors');
@@ -301,6 +322,20 @@ export class DressUpApp {
     svg.classList.add('crop');
     const d = this.dollDef;
     const [c1, c2] = item.colors;
+    if (item.painted) {
+      if (item.slot === 'hair') {
+        // Hair is shown on her head.
+        svg.setAttribute('viewBox', PAINTED_HEAD_BOX);
+        svg.innerHTML = this.dollMarkup(d, { worn: { hair: id }, colors: {}, hairColor: icon ? d.hairColor : this.look.hairColor });
+      } else {
+        const [x, y, w, h] = item.painted.bounds;
+        const pad = Math.max(w, h) * 0.06;
+        svg.setAttribute('viewBox', `${x - pad} ${y - pad} ${w + pad * 2} ${h + pad * 2}`);
+        svg.innerHTML = paintedImage(item.painted.file);
+      }
+      svg.classList.remove('crop');
+      return svg;
+    }
     if (item.slot === 'hair') {
       svg.innerHTML = this.dollMarkup(d, { worn: { hair: id }, colors: {}, hairColor: icon ? '#6b4128' : this.look.hairColor })
         .replace(BODY, headOnly());
@@ -381,17 +416,22 @@ export class DressUpApp {
     this.pushUndo();
     const pick = <T,>(a: T[]) => a[Math.floor(Math.random() * a.length)];
     const look = this.look;
+    // Painted dolls have fewer drawers: only pick from what she has.
+    const some = (slot: Slot, chance: number): Partial<Record<Slot, string>> => {
+      const items = this.itemsFor(slot);
+      return items.length && Math.random() < chance ? { [slot]: pick(items).id } : {};
+    };
     const dress = Math.random() < 0.45;
     look.worn = {
-      hair: pick(HAIR).id,
-      shoes: pick(this.itemsFor('shoes')).id,
-      ...(dress ? { dress: pick(this.itemsFor('dress')).id } : { top: pick(this.itemsFor('top')).id, bottom: pick(this.itemsFor('bottom')).id }),
-      ...(Math.random() < 0.7 ? { hat: pick(this.itemsFor('hat')).id } : {}),
-      ...(Math.random() < 0.6 ? { acc: pick(this.itemsFor('acc')).id } : {}),
-      ...(Math.random() < 0.5 ? { ears: pick(this.itemsFor('ears')).id } : {}),
-      ...(Math.random() < 0.4 ? { face: pick(this.itemsFor('face')).id } : {}),
-      ...(Math.random() < 0.3 ? { back: pick(this.itemsFor('back')).id } : {}),
-      ...(Math.random() < 0.7 ? { scene: pick(this.itemsFor('scene')).id } : {}),
+      hair: pick(this.itemsFor('hair')).id,
+      ...some('shoes', 1),
+      ...(dress ? some('dress', 1) : { ...some('top', 1), ...some('bottom', 1) }),
+      ...some('hat', 0.7),
+      ...some('acc', 0.6),
+      ...some('ears', 0.5),
+      ...some('face', 0.4),
+      ...some('back', 0.3),
+      ...some('scene', 0.7),
     };
     look.colors = {};
     look.hairColor = pick(HAIR_COLORS);
