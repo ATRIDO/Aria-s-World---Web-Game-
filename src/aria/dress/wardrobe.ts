@@ -362,30 +362,8 @@ export const ITEMS: Item[] = [
 /** Colors offered for recoloring whatever is worn in the chosen drawer. */
 export const CLOTH_COLORS = ['#ec4840', '#fa8a28', '#ffd84a', '#3ab460', '#4fc3ee', '#3a80e8', '#9b6ae0', '#ff7ab8', '#ffffff', '#2b2230'];
 
-/** Original drawn dolls with different skin tones, eyes and hair. */
-const SVG_DOLLS: Doll[] = [
-  { id: 'luna', name: 'Luna', skin: '#fbd9c2', eyes: '#3b6fb0', hair: 'long', hairColor: '#f2c75c',
-    outfit: { dress: 'party', shoes: 'flats', hat: 'bow' } },
-  { id: 'sora', name: 'Sora', skin: '#f1c7a0', eyes: '#4a3328', hair: 'buns', hairColor: '#ff8fc8',
-    outfit: { top: 'jacket', bottom: 'skirt', shoes: 'boots', acc: 'mic', scene: 'stagebg' } },
-  { id: 'nia', name: 'Nia', skin: '#9a6440', eyes: '#3a2418', hair: 'curly', hairColor: '#2b2230',
-    outfit: { top: 'tee', bottom: 'jeans', shoes: 'sneakers', hat: 'headphones' } },
-  { id: 'ivy', name: 'Ivy', skin: '#d9a07a', eyes: '#2f7a4a', hair: 'ponytail', hairColor: '#6b4128',
-    outfit: { dress: 'sundress', shoes: 'sandals', hat: 'sunhat', acc: 'bag', scene: 'beach' } },
-  // An original fashion doll in the classic style: long blonde waves, pink, heels.
-  { id: 'bree', name: 'Bree', skin: '#fbd6bf', eyes: '#3b8fd9', hair: 'wavy', hairColor: '#f6d36b',
-    outfit: { dress: 'fashion', shoes: 'heels', ears: 'hoops', acc: 'bag', face: 'lipstick', scene: 'garden' } },
-  // Original princesses (not any film's characters).
-  { id: 'rosa', name: 'Princess Rosa', skin: '#f6cfb0', eyes: '#4a3328', hair: 'braid', hairColor: '#7a4a2a',
-    outfit: { dress: 'princessgown', hat: 'tiara', shoes: 'sparkle', back: 'cape', scene: 'castle' } },
-  { id: 'amara', name: 'Princess Amara', skin: '#7a4a2c', eyes: '#2a1a12', hair: 'highbun', hairColor: '#2b2230',
-    outfit: { dress: 'ruffle', hat: 'flowercrown', ears: 'pearls', acc: 'fan', scene: 'garden' } },
-  { id: 'mei', name: 'Princess Mei', skin: '#f3d2b3', eyes: '#2b2230', hair: 'long', hairColor: '#2b2230',
-    outfit: { dress: 'gown', hat: 'tiara', shoes: 'sparkle', back: 'fairywings', face: 'glitter', scene: 'night' } },
-];
-
-/** All the dolls: the drawn ones, then the painted ones (saved outfits go by position, so new dolls go last). */
-export const DOLLS: Doll[] = [...SVG_DOLLS, ...PAINTED_DOLLS];
+/** The dolls: the painted ones (the drawn dolls were retired; their drawn clothes only remain for the places). */
+export const DOLLS: Doll[] = PAINTED_DOLLS;
 
 export const DRAWERS: { slot: Slot; name: string }[] = [
   { slot: 'hair', name: 'Hair' },
