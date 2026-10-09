@@ -32,11 +32,11 @@ This repo and its GitHub Pages site are public, so everything in the game is pub
 - Coloring pages are drawn as SVG in `src/aria/assets/pages-src/` and converted with
   `node scripts/svg-to-page.mjs` (needs Playwright; see the script). Give new pages new ids:
   saved pictures are stored per page id, so reusing an id puts an old picture on a new page.
-- Dress-up has two kinds of dolls: drawn ones (SVG in `src/aria/dress/wardrobe.ts`) and painted
-  ones (`src/aria/dress/painted.ts`, art in `src/aria/assets/painted/`, made with Nano Banana on
-  the owner's Higgsfield account: see the README there). Painted pieces all fit the one shared
-  painted body; keep new ones original and add them the way that README describes. Saved outfits
-  go by doll position, so new dolls go at the end of the list.
+- Dress-up uses only painted dolls (`src/aria/dress/painted.ts`, art in `src/aria/assets/painted/`,
+  made with Nano Banana on the owner's Higgsfield account: see the README there). The earlier drawn
+  dolls were retired on purpose; don't bring them back. Painted pieces all fit the one shared
+  painted body; keep new ones original and add them the way that README describes. The drawn
+  clothes in `wardrobe.ts` are only still used for the "Places" backgrounds.
 - Before adding assets from Google Drive or elsewhere, check where they came from; if unsure, ask.
 
 ## Google Drive (required)
