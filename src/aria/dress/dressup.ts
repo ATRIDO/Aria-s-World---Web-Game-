@@ -32,6 +32,8 @@ export class DressUpApp {
   private drawer: Slot = 'dress';
   private undoStack: { doll: number; look: Look }[] = [];
   private built = false;
+  /** The friends as they were before the last change in the save box, for its undo. */
+  private friendsBefore: (Friend | null)[] | null = null;
   private drag: { item: Item; id: number; x: number; y: number; ghost: HTMLElement | null } | null = null;
   private readonly reduced = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -115,6 +117,10 @@ export class DressUpApp {
       this.sound.playPop();
       this.surprise();
     });
+    $('dress-reset').addEventListener('click', () => {
+      this.sound.playPop();
+      this.startOver();
+    });
     $('dress-save').addEventListener('click', () => {
       this.sound.playPop();
       this.openFriends();
@@ -126,6 +132,10 @@ export class DressUpApp {
     $('dress-friends-close').addEventListener('click', () => {
       this.sound.playPop();
       closeFriends();
+    });
+    $('dress-friends-undo').addEventListener('click', () => {
+      this.sound.playPop();
+      this.undoFriends();
     });
     pop.addEventListener('click', (e) => {
       if (e.target === pop) closeFriends();
@@ -143,20 +153,22 @@ export class DressUpApp {
   // ---------------------------------------------------------------------------
 
   private openFriends(): void {
+    this.friendsBefore = null;
     $('dress-friends').hidden = false;
     this.renderFriends();
     $<HTMLButtonElement>('dress-friends-close').focus();
   }
 
   /**
-   * Five places. An empty one saves her there right away; a full one asks first
-   * (it wiggles, and a second tap replaces it). The little x clears one, also
-   * with a second tap, so nobody loses a friend by accident.
+   * Five places, one tap each: an empty one saves her there, a full one is
+   * replaced, and the little x clears one. Nothing asks first; instead the
+   * undo button brings back whatever the last tap changed.
    */
-  private renderFriends(armed = ''): void {
+  private renderFriends(): void {
     const box = $('dress-friend-slots');
     box.replaceChildren();
     const friends = loadFriends();
+    $('dress-friends-undo').hidden = !this.friendsBefore;
     friends.forEach((f, i) => {
       const cell = document.createElement('div');
       cell.className = 'friend-cell';
@@ -164,36 +176,24 @@ export class DressUpApp {
       b.type = 'button';
       b.className = 'friend-slot';
       if (f) {
-        b.setAttribute('aria-label', armed === `put${i}` ? 'Tap again to put her here instead' : 'Saved friend: tap twice to put her here instead');
+        b.setAttribute('aria-label', 'Saved friend: tap to put her here instead');
         b.appendChild(headSvg(dollOf(f.doll), f.look));
-        if (armed === `put${i}`) b.classList.add('armed');
       } else {
         b.classList.add('empty');
         b.setAttribute('aria-label', 'Save her here');
         b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6v12M6 12h12" /></svg>';
       }
-      b.addEventListener('click', () => {
-        if (f && armed !== `put${i}`) {
-          this.sound.playPop(0.9);
-          this.renderFriends(`put${i}`);
-          return;
-        }
-        this.putFriend(friends, i);
-      });
+      b.addEventListener('click', () => this.putFriend(friends, i));
       cell.appendChild(b);
       if (f) {
         const x = document.createElement('button');
         x.type = 'button';
         x.className = 'friend-clear';
-        if (armed === `clear${i}`) x.classList.add('armed');
-        x.setAttribute('aria-label', armed === `clear${i}` ? 'Tap again to remove' : 'Remove');
+        x.setAttribute('aria-label', 'Remove');
         x.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17" /></svg>';
         x.addEventListener('click', () => {
           this.sound.playPop(0.8);
-          if (armed !== `clear${i}`) {
-            this.renderFriends(`clear${i}`);
-            return;
-          }
+          this.friendsBefore = friends.slice();
           friends[i] = null;
           saveFriends(friends);
           this.renderFriends();
@@ -206,6 +206,8 @@ export class DressUpApp {
   }
 
   private putFriend(friends: (Friend | null)[], i: number): void {
+    const replacing = !!friends[i];
+    this.friendsBefore = friends.slice();
     friends[i] = { doll: this.dollDef.id, look: clone(this.look) };
     saveFriends(friends);
     this.renderFriends();
@@ -214,9 +216,19 @@ export class DressUpApp {
     const r = slot?.getBoundingClientRect();
     if (r) vfx.burst(r.left + r.width / 2, r.top + r.height / 2, { count: 18, colors: ['#ff6fae', '#ffd54f', '#ffffff'], shape: 'star', speed: 280, size: 9, life: 0.7 });
     this.sound.playPop(1.3);
-    window.setTimeout(() => {
-      $('dress-friends').hidden = true;
-    }, 900);
+    // A new friend closes the box; replacing one stays open so undo is in reach.
+    if (!replacing) {
+      window.setTimeout(() => {
+        $('dress-friends').hidden = true;
+      }, 900);
+    }
+  }
+
+  private undoFriends(): void {
+    if (!this.friendsBefore) return;
+    saveFriends(this.friendsBefore);
+    this.friendsBefore = null;
+    this.renderFriends();
   }
 
   private itemsFor(slot: Slot): Item[] {
@@ -398,6 +410,15 @@ export class DressUpApp {
     this.save();
     this.render();
     this.cheer(1.4);
+  }
+
+  /** Back to the clothes she started in (undoable). */
+  private startOver(): void {
+    this.pushUndo();
+    this.looks[this.dollDef.id] = freshLook(this.dollDef);
+    this.save();
+    this.render();
+    this.cheer(1);
   }
 
   private pushUndo(): void {

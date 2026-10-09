@@ -2097,23 +2097,28 @@ html.resuming body {
   stroke-linecap: round;
 }
 
-.friend-slot.armed {
-  border-color: var(--accent);
-  animation: friend-wiggle 0.5s ease-in-out infinite;
-}
-
 .friend-slot.saved {
   border-color: #3ab460;
   animation: friend-pop 0.5s ease-out;
 }
 
+.friends-buttons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.friends-buttons .icon[hidden] {
+  display: none;
+}
+
 .friend-clear {
   position: absolute;
-  top: -8px;
-  right: -8px;
-  width: 34px;
-  height: 34px;
-  padding: 6px;
+  top: -12px;
+  right: -12px;
+  width: 44px;
+  height: 44px;
+  padding: 10px;
   border-radius: 50%;
   background: #fff;
   box-shadow: var(--shadow);
@@ -2127,21 +2132,6 @@ html.resuming body {
   stroke: #5b3a47;
   stroke-width: 3;
   stroke-linecap: round;
-}
-
-.friend-clear.armed {
-  background: #ec4840;
-  transform: scale(1.2);
-}
-
-.friend-clear.armed svg {
-  stroke: #fff;
-}
-
-@keyframes friend-wiggle {
-  0%, 100% { transform: rotate(0); }
-  25% { transform: rotate(-6deg); }
-  75% { transform: rotate(6deg); }
 }
 
 @keyframes friend-pop {
@@ -2449,7 +2439,6 @@ html.resuming body {
   .tug-count.tick,
   #tug .tug-doll.win,
   .tug-crown.show > g,
-  .friend-slot.armed,
   .friend-slot.saved {
     animation: none;
   }
