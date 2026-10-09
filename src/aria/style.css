@@ -129,6 +129,40 @@ button:focus-visible,
   pointer-events: none;
 }
 
+/* iPad portrait: bigger cards, four on the first row and three below. */
+@media (min-width: 561px) and (max-aspect-ratio: 1/1) {
+  .mode-card {
+    width: clamp(132px, 19vw, 200px);
+  }
+}
+
+/* Phone: color and sketch are the big ones, then three, then two. */
+@media (max-width: 560px) {
+  .modes {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    width: min(100%, 380px);
+    gap: 12px 10px;
+  }
+
+  .mode-card {
+    width: 100%;
+    grid-column: span 2;
+  }
+
+  .mode-card:nth-child(-n + 2) {
+    grid-column: span 3;
+  }
+
+  .mode-card:nth-child(6) {
+    grid-column: 2 / span 2;
+  }
+
+  .mode-card:nth-child(7) {
+    grid-column: 4 / span 2;
+  }
+}
+
 .mode-card:hover {
   transform: translateY(-4px) rotate(-1deg);
 }
@@ -813,13 +847,6 @@ body:not([data-tool='stamp']) #stamps {
 }
 
 /* ---------------------------------------------------------------- Trace */
-
-.trace-card-art {
-  display: block;
-  width: 100%;
-  height: auto;
-  pointer-events: none;
-}
 
 .trace {
   display: grid;

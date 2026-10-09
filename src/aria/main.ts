@@ -5,8 +5,13 @@ import { setupInstall } from './install';
 import eraserImg from './assets/crayons/eraser.png';
 import menuVideo from './assets/media/menu-bg.mp4';
 import logo from './assets/ui/logo.png';
-import modeColor from './assets/ui/mode-color.png';
-import modeSketch from './assets/ui/mode-sketch.png';
+import modeColor from './assets/ui/mode-color.webp';
+import modeDress from './assets/ui/mode-dress.webp';
+import modeMatch from './assets/ui/mode-match.webp';
+import modeMemory from './assets/ui/mode-memory.webp';
+import modeSketch from './assets/ui/mode-sketch.webp';
+import modeTrace from './assets/ui/mode-trace.webp';
+import modeTug from './assets/ui/mode-tug.webp';
 import type { Mode } from './pages';
 import { DressUpApp } from './dress/dressup';
 import { MatchingApp } from './match/matcher';
@@ -32,6 +37,11 @@ byId<HTMLImageElement>('start-logo').src = logo;
 byId<HTMLImageElement>('eraser-img').src = eraserImg;
 byId<HTMLImageElement>('mode-color-img').src = modeColor;
 byId<HTMLImageElement>('mode-sketch-img').src = modeSketch;
+byId<HTMLImageElement>('mode-trace-img').src = modeTrace;
+byId<HTMLImageElement>('mode-match-img').src = modeMatch;
+byId<HTMLImageElement>('mode-dress-img').src = modeDress;
+byId<HTMLImageElement>('mode-tug-img').src = modeTug;
+byId<HTMLImageElement>('mode-memory-img').src = modeMemory;
 video.src = menuVideo;
 video.play().catch(() => {
   // Low Power Mode on iOS blocks autoplay; the logo still shows.
