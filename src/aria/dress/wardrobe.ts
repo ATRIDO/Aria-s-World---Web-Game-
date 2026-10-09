@@ -2,6 +2,9 @@
 // clothes, drawn by hand as SVG in one 200 × 320 box so every item fits every
 // doll. Colors come from CSS variables, so a child can recolor what's worn:
 //   .skin → --skin, .hair → --hair, .eye → --eyes, .c1 → --c1, .c2 → --c2
+// Painted dolls and clothes (painted.ts) are added to the same list of dolls.
+
+import { PAINTED_DOLLS } from './painted';
 
 export type Slot = 'hair' | 'top' | 'bottom' | 'dress' | 'shoes' | 'hat' | 'acc' | 'face' | 'ears' | 'back' | 'scene';
 
@@ -16,6 +19,11 @@ export interface Item {
   front: string;
   /** Default colors for .c1 and .c2 (hair uses the doll's hair color). */
   colors: [string, string];
+  /**
+   * A painted piece (a picture that fits the painted dolls) instead of drawn SVG.
+   * `bounds` is where it sits in the 200 × 320 box: x, y, width, height.
+   */
+  painted?: { file: string; bounds: [number, number, number, number] };
 }
 
 export interface Doll {
@@ -25,6 +33,8 @@ export interface Doll {
   eyes: string;
   hair: string;
   hairColor: string;
+  /** Painted dolls: which painted body picture she has (see painted.ts). */
+  body?: string;
   /** What she starts in: item id per slot. */
   outfit: Partial<Record<Slot, string>>;
 }
@@ -352,8 +362,8 @@ export const ITEMS: Item[] = [
 /** Colors offered for recoloring whatever is worn in the chosen drawer. */
 export const CLOTH_COLORS = ['#ec4840', '#fa8a28', '#ffd84a', '#3ab460', '#4fc3ee', '#3a80e8', '#9b6ae0', '#ff7ab8', '#ffffff', '#2b2230'];
 
-/** Original dolls with different skin tones, eyes and hair. */
-export const DOLLS: Doll[] = [
+/** Original drawn dolls with different skin tones, eyes and hair. */
+const SVG_DOLLS: Doll[] = [
   { id: 'luna', name: 'Luna', skin: '#fbd9c2', eyes: '#3b6fb0', hair: 'long', hairColor: '#f2c75c',
     outfit: { dress: 'party', shoes: 'flats', hat: 'bow' } },
   { id: 'sora', name: 'Sora', skin: '#f1c7a0', eyes: '#4a3328', hair: 'buns', hairColor: '#ff8fc8',
@@ -373,6 +383,9 @@ export const DOLLS: Doll[] = [
   { id: 'mei', name: 'Princess Mei', skin: '#f3d2b3', eyes: '#2b2230', hair: 'long', hairColor: '#2b2230',
     outfit: { dress: 'gown', hat: 'tiara', shoes: 'sparkle', back: 'fairywings', face: 'glitter', scene: 'night' } },
 ];
+
+/** All the dolls: the drawn ones, then the painted ones (saved outfits go by position, so new dolls go last). */
+export const DOLLS: Doll[] = [...SVG_DOLLS, ...PAINTED_DOLLS];
 
 export const DRAWERS: { slot: Slot; name: string }[] = [
   { slot: 'hair', name: 'Hair' },

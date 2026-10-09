@@ -1,6 +1,7 @@
 // Drawing a dressed doll, shared by dress-up and the games that use the
 // characters saved there (tug of war).
 import { BODY, FEET, HAIR, ITEMS, LAYERS, type Doll, type Item, type Slot } from './wardrobe';
+import { PAINTED_HAIR, PAINTED_HEAD_BOX, PAINTED_ITEMS, paintedBody, paintedImage } from './painted';
 
 /** What one doll wears: item id per slot, and the colors chosen for each slot. */
 export interface Look {
@@ -11,7 +12,7 @@ export interface Look {
 
 export const SVG_NS = 'http://www.w3.org/2000/svg';
 
-export const itemById = new Map<string, Item>([...ITEMS, ...HAIR].map((i) => [i.id, i]));
+export const itemById = new Map<string, Item>([...ITEMS, ...HAIR, ...PAINTED_ITEMS, ...PAINTED_HAIR].map((i) => [i.id, i]));
 
 export function freshLook(d: Doll): Look {
   return { worn: { hair: d.hair, ...d.outfit }, colors: {}, hairColor: d.hairColor };
@@ -29,19 +30,30 @@ export const cloneLook = (l: Look): Look => JSON.parse(JSON.stringify(l)) as Loo
  * `skip` leaves out some slots, e.g. the background place when she's in a game.
  */
 export function lookMarkup(d: Doll, look: Look, skip: Slot[] = []): string {
+  const painted = !!d.body;
   let back = '', front = '';
   for (const slot of LAYERS) {
     if (skip.includes(slot)) continue;
     const id = look.worn[slot];
     const item = id ? itemById.get(id) : undefined;
     if (!item) continue;
+    // Drawn pieces don't fit painted dolls and the other way round (places fit both).
+    if (slot !== 'scene' && !!item.painted !== painted) continue;
     const picked = look.colors[slot];
+    if (item.painted) {
+      // Painted pieces are recolored from their own color to the one picked.
+      const target = slot === 'hair' ? look.hairColor : picked?.[0];
+      const img = paintedImage(item.painted.file, item.colors[0], isHexColor(target) ? target : undefined);
+      front += `<g class="layer" data-slot="${slot}">${img}</g>`;
+      continue;
+    }
     const c1 = safeColor(picked?.[0], item.colors[0]);
     const c2 = safeColor(picked?.[1], item.colors[1]);
     const style = `--c1:${c1};--c2:${c2}`;
     if (item.back) back += `<g style="${style}">${item.back}</g>`;
     front += `<g class="layer" data-slot="${slot}" style="${style}">${item.front}</g>`;
   }
+  if (painted) return `<g>${back}${paintedBody(d)}${front}</g>`;
   const feet = look.worn.shoes ? '' : FEET;
   return `<g style="--skin:${d.skin};--eyes:${d.eyes};--hair:${safeColor(look.hairColor, d.hairColor)}">${back}${BODY}${feet}${front}</g>`;
 }
@@ -55,12 +67,18 @@ export function headOnly(): string {
 /** A picture of a doll's head with her hair (and hat, earrings and makeup). */
 export function headSvg(d: Doll, look: Look): SVGSVGElement {
   const svg = document.createElementNS(SVG_NS, 'svg');
-  svg.setAttribute('viewBox', '0 0 200 320');
   svg.setAttribute('aria-hidden', 'true');
-  svg.classList.add('crop');
-  svg.dataset.crop = 'head';
   const { worn } = look;
   const head: Look = { worn: { hair: worn.hair, hat: worn.hat, ears: worn.ears, face: worn.face }, colors: look.colors, hairColor: look.hairColor };
+  if (d.body) {
+    // Painted: a fixed window on her head (the picture is the same for every doll).
+    svg.setAttribute('viewBox', PAINTED_HEAD_BOX);
+    svg.innerHTML = lookMarkup(d, head);
+    return svg;
+  }
+  svg.setAttribute('viewBox', '0 0 200 320');
+  svg.classList.add('crop');
+  svg.dataset.crop = 'head';
   svg.innerHTML = lookMarkup(d, head).replace(BODY, headOnly());
   return svg;
 }
