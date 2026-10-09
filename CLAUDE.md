@@ -23,12 +23,9 @@ This repo and its GitHub Pages site are public, so everything in the game is pub
   or "chibi" characters owned by others (Disney, Pixar, Warner Bros., Hasbro, Mattel/Barbie,
   Netflix/Sony's KPop Demon Hunters, Nintendo, etc.); offer an original alternative instead
   (original fashion dolls, K-pop idols, princesses...). Keep brand names out of the UI.
-- **Existing coloring pages `page1`–`page31`** show such characters (Disney princesses, Frozen,
-  Toy Story, Harry Potter, Powerpuff Girls, My Little Pony, Peppa Pig, KPop Demon Hunters fan
-  art). The owner decided to keep them for now, knowing the risk. **If a report, takedown notice
-  or complaint about any of them arrives, remove those pages right away** (delete
-  `src/aria/assets/pages/pageN-*.png`, drop the titles in `src/aria/pages.ts`) and publish; the
-  `art17`–`art28` (made with Higgsfield, original) remain.
+- **Coloring pages** are all original (`art17`–`art59`, made with Higgsfield, see
+  `src/aria/assets/pages/ART17-59-SOURCE.md`). The earlier `page1`–`page31` (fan art of owned
+  characters) were removed; don't bring them back.
 - Coloring pages are drawn as SVG in `src/aria/assets/pages-src/` and converted with
   `node scripts/svg-to-page.mjs` (needs Playwright; see the script). Give new pages new ids:
   saved pictures are stored per page id, so reusing an id puts an old picture on a new page.
