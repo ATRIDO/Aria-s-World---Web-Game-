@@ -1,6 +1,6 @@
 // Characters saved from dress-up ("friends"), up to five, for the games that
 // let children play as their own creations.
-import { cloneLook, freshLook, type Look } from './art';
+import { cloneLook, freshLook, isHexColor, type Look } from './art';
 import { DOLLS, type Doll } from './wardrobe';
 
 export const MAX_FRIENDS = 5;
@@ -24,7 +24,7 @@ export interface Character {
 
 function isLook(v: unknown): v is Look {
   const l = v as Look | null;
-  return !!l && typeof l === 'object' && typeof l.worn === 'object' && typeof l.hairColor === 'string';
+  return !!l && typeof l === 'object' && typeof l.worn === 'object' && isHexColor(l.hairColor);
 }
 
 /** Always MAX_FRIENDS long; empty places are null. */
