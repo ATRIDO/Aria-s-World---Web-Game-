@@ -17,6 +17,11 @@ export function freshLook(d: Doll): Look {
   return { worn: { hair: d.hair, ...d.outfit }, colors: {}, hairColor: d.hairColor };
 }
 
+/** Colors come back from localStorage and end up inside SVG markup, so only plain hex colors are let through. */
+const HEX_COLOR = /^#[0-9a-f]{3,8}$/i;
+export const isHexColor = (c: unknown): c is string => typeof c === 'string' && HEX_COLOR.test(c);
+const safeColor = (c: unknown, fallback: string): string => (isHexColor(c) ? c : fallback);
+
 export const cloneLook = (l: Look): Look => JSON.parse(JSON.stringify(l)) as Look;
 
 /**
@@ -30,13 +35,15 @@ export function lookMarkup(d: Doll, look: Look, skip: Slot[] = []): string {
     const id = look.worn[slot];
     const item = id ? itemById.get(id) : undefined;
     if (!item) continue;
-    const [c1, c2] = look.colors[slot] ?? item.colors;
+    const picked = look.colors[slot];
+    const c1 = safeColor(picked?.[0], item.colors[0]);
+    const c2 = safeColor(picked?.[1], item.colors[1]);
     const style = `--c1:${c1};--c2:${c2}`;
     if (item.back) back += `<g style="${style}">${item.back}</g>`;
     front += `<g class="layer" data-slot="${slot}" style="${style}">${item.front}</g>`;
   }
   const feet = look.worn.shoes ? '' : FEET;
-  return `<g style="--skin:${d.skin};--eyes:${d.eyes};--hair:${look.hairColor}">${back}${BODY}${feet}${front}</g>`;
+  return `<g style="--skin:${d.skin};--eyes:${d.eyes};--hair:${safeColor(look.hairColor, d.hairColor)}">${back}${BODY}${feet}${front}</g>`;
 }
 
 /** Just the head and face of BODY (for hair pictures and the doll buttons). */
