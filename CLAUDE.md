@@ -28,7 +28,7 @@ This repo and its GitHub Pages site are public, so everything in the game is pub
   art). The owner decided to keep them for now, knowing the risk. **If a report, takedown notice
   or complaint about any of them arrives, remove those pages right away** (delete
   `src/aria/assets/pages/pageN-*.png`, drop the titles in `src/aria/pages.ts`) and publish; the
-  `art17`–`art28` (made with Higgsfield, original) remain.
+  `art17`–`art40` (made with Higgsfield, original) remain.
 - Coloring pages are drawn as SVG in `src/aria/assets/pages-src/` and converted with
   `node scripts/svg-to-page.mjs` (needs Playwright; see the script). Give new pages new ids:
   saved pictures are stored per page id, so reusing an id puts an old picture on a new page.

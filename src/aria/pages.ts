@@ -77,6 +77,18 @@ const TITLES: Record<string, string> = {
   art26: 'Panda and koala',
   art27: 'Dino family',
   art28: 'Rocket in space',
+  art29: 'Baby elephant',
+  art30: 'Fox and bunny picnic',
+  art31: 'Octopus and seahorse',
+  art32: 'Unicorn and rainbow',
+  art33: 'Fire truck',
+  art34: 'Giraffe and monkey',
+  art35: 'Fairy on a mushroom',
+  art36: 'Bear baker',
+  art37: 'Farm',
+  art38: 'Sailboat and dolphin',
+  art39: 'Astronaut and robot',
+  art40: 'Kitten and puppy',
 };
 
 export const PAGES: PageDef[] = Object.keys(bases)
