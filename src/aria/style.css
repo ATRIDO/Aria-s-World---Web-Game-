@@ -2557,3 +2557,57 @@ html.resuming body {
     scrollbar-width: none;
   }
 }
+
+/* ---------------------------------------------------------------- Polish
+   Depth and gentle motion only; the logo and the palette above are unchanged. */
+
+.start::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 30%, rgb(255 255 255 / 0.35), transparent 60%),
+    radial-gradient(ellipse at 50% 120%, rgb(91 58 71 / 0.12), transparent 55%);
+}
+
+.start-content {
+  z-index: 1;
+}
+
+.mode-card {
+  filter: drop-shadow(0 2px 2px rgb(91 58 71 / 0.18)) drop-shadow(0 10px 18px rgb(91 58 71 / 0.22));
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.2s ease-out;
+}
+
+.mode-card:hover {
+  transform: translateY(-6px) scale(1.03) rotate(-1deg);
+  filter: drop-shadow(0 3px 3px rgb(91 58 71 / 0.2)) drop-shadow(0 16px 22px rgb(91 58 71 / 0.26));
+}
+
+.mode-card:active {
+  transform: scale(0.95);
+  filter: drop-shadow(0 2px 4px rgb(91 58 71 / 0.2));
+}
+
+.logo {
+  animation: logo-float 5s ease-in-out infinite;
+}
+
+@keyframes logo-float {
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo {
+    animation: none;
+  }
+
+  .mode-card,
+  .mode-card:hover,
+  .mode-card:active {
+    transition: none;
+    transform: none;
+  }
+}
