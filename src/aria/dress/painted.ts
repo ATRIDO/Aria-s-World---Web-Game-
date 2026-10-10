@@ -78,8 +78,15 @@ const mk = (m: (typeof PAINTED_MANIFEST)[number]): Item => ({
   painted: { file: m.id, bounds: m.bounds },
 });
 
+/**
+ * Knee-length shorts she always wears when she has no dress or bottom on, so the
+ * painted body never shows underwear. Not in any drawer; it can't be taken off.
+ */
+export const UNDERLAYER_ID = 'pb-shorts';
+
 export const PAINTED_HAIR: Item[] = PAINTED_MANIFEST.filter((m) => m.slot === 'hair').map(mk);
-export const PAINTED_ITEMS: Item[] = PAINTED_MANIFEST.filter((m) => m.slot !== 'hair').map(mk);
+export const PAINTED_ITEMS: Item[] = PAINTED_MANIFEST.filter((m) => m.slot !== 'hair' && m.id !== UNDERLAYER_ID).map(mk);
+export const PAINTED_UNDERLAYER: Item[] = PAINTED_MANIFEST.filter((m) => m.id === UNDERLAYER_ID).map(mk);
 
 const has = (id: string | undefined) => !!id && PAINTED_MANIFEST.some((m) => m.id === id);
 const outfit = (o: Partial<Record<Slot, string>>): Partial<Record<Slot, string>> =>

@@ -16,6 +16,9 @@ in `scripts/painted/`.
   SVG color matrix (a hue shift), so the color dots work on painted pieces too.
 - `painted-data.ts` (generated) lists every piece with its slot, main color and bounds.
 
+`pb-shorts` is not a drawer item: it is worn by default whenever a painted doll has no dress
+or bottom on, so the body never shows underwear (see `UNDERLAYER_ID` in `painted.ts`).
+
 ## Making a new piece
 
 1. On the Higgsfield website (Nano Banana Pro, unlimited, 2:3), give it the bare doll

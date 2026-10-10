@@ -61,4 +61,8 @@ violation as a bug, not a style choice:
   external links, or data collection inside the game.
 - **Respect the device**: works offline once loaded, pauses music when hidden, honours
   `prefers-reduced-motion`, and runs on older iPads (Canvas 2D fallback, Safari 15+).
+- **All graphics must be child-friendly**: characters are modest and fully clothed (painted dolls
+  always wear knee-length shorts when they have no dress or bottom on; never show underwear),
+  cheerful, and free of anything scary, revealing or suggestive. Write art prompts that way and
+  check the result before shipping.
 - Check new UI at phone size (390×844), iPad portrait and landscape before pushing.
