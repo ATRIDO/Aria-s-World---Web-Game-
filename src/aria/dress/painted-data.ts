@@ -19,4 +19,6 @@ export const PAINTED_MANIFEST: { id: string; slot: string; name: string; color: 
   { id: 'ph-buns', slot: 'hair', name: 'Two buns', color: '#d39c5b', bounds: [30.9, 6.8, 137.1, 100.6] },
   { id: 'ph-curly', slot: 'hair', name: 'Curly puff', color: '#dca863', bounds: [31.6, 0.4, 135.7, 112.4] },
   { id: 'ph-bob', slot: 'hair', name: 'Short bob', color: '#d39f5e', bounds: [40.9, 10, 117, 107] },
+  { id: 'ph-braid', slot: 'hair', name: 'Side braid', color: '#c8945e', bounds: [30.2, 9.7, 139.2, 189.4] },
+  { id: 'pb-shorts', slot: 'bottom', name: 'Shorts', color: '#6a82a0', bounds: [65.3, 182.6, 68.7, 66.2] },
 ];

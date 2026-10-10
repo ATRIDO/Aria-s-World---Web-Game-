@@ -1,7 +1,7 @@
 // Drawing a dressed doll, shared by dress-up and the games that use the
 // characters saved there (tug of war).
 import { BODY, FEET, HAIR, ITEMS, LAYERS, type Doll, type Item, type Slot } from './wardrobe';
-import { PAINTED_HAIR, PAINTED_HEAD_BOX, PAINTED_ITEMS, paintedBody, paintedImage } from './painted';
+import { PAINTED_HAIR, PAINTED_HEAD_BOX, PAINTED_ITEMS, PAINTED_UNDERLAYER, UNDERLAYER_ID, paintedBody, paintedImage } from './painted';
 
 /** What one doll wears: item id per slot, and the colors chosen for each slot. */
 export interface Look {
@@ -12,7 +12,7 @@ export interface Look {
 
 export const SVG_NS = 'http://www.w3.org/2000/svg';
 
-export const itemById = new Map<string, Item>([...ITEMS, ...HAIR, ...PAINTED_ITEMS, ...PAINTED_HAIR].map((i) => [i.id, i]));
+export const itemById = new Map<string, Item>([...ITEMS, ...HAIR, ...PAINTED_ITEMS, ...PAINTED_HAIR, ...PAINTED_UNDERLAYER].map((i) => [i.id, i]));
 
 export function freshLook(d: Doll): Look {
   return { worn: { hair: d.hair, ...d.outfit }, colors: {}, hairColor: d.hairColor };
@@ -34,7 +34,8 @@ export function lookMarkup(d: Doll, look: Look, skip: Slot[] = []): string {
   let back = '', front = '';
   for (const slot of LAYERS) {
     if (skip.includes(slot)) continue;
-    const id = look.worn[slot];
+    // A painted doll with no dress or bottom wears the default shorts (never underwear).
+    const id = look.worn[slot] ?? (painted && slot === 'bottom' && !look.worn.dress ? UNDERLAYER_ID : undefined);
     const item = id ? itemById.get(id) : undefined;
     if (!item) continue;
     // Drawn pieces don't fit painted dolls and the other way round (places fit both).
