@@ -12,6 +12,10 @@ type AudioCtor = typeof AudioContext;
 export class Sound {
   private ctx: AudioContext | null = null;
   private pop: AudioBuffer | null = null;
+  /** Spoken clips, decoded once each. */
+  private readonly clips = new Map<string, Promise<AudioBuffer>>();
+  private clipId = 0;
+  private clipSource: AudioBufferSourceNode | null = null;
   private readonly bgm = new Audio(bgmUrl);
   private musicOn: boolean;
   /** Set once the player has tapped Play, so we never start music on our own before that. */
@@ -83,6 +87,42 @@ export class Sound {
     gain.gain.value = 0.6;
     src.connect(gain).connect(ctx.destination);
     src.start(0);
+  }
+
+  /**
+   * Plays one spoken clip, stopping the one before. Uses the unlocked audio
+   * context, so it also works later on (iOS only allows that after a tap).
+   */
+  playClip(url: string): void {
+    const ctx = this.ctx;
+    if (!ctx) return;
+    const id = ++this.clipId;
+    let buf = this.clips.get(url);
+    if (!buf) {
+      buf = fetch(url)
+        .then((r) => r.arrayBuffer())
+        // Callback form: the promise form is missing in older Safari.
+        .then((data) => new Promise<AudioBuffer>((resolve, reject) => ctx.decodeAudioData(data, resolve, reject)));
+      this.clips.set(url, buf);
+    }
+    buf.then((b) => {
+      if (id !== this.clipId) return;
+      this.stopClip();
+      const src = ctx.createBufferSource();
+      src.buffer = b;
+      src.connect(ctx.destination);
+      src.start(0);
+      this.clipSource = src;
+    }).catch((e) => {
+      this.clips.delete(url);
+      console.warn('[audio] clip unavailable', e);
+    });
+  }
+
+  stopClip(): void {
+    this.clipId++;
+    this.clipSource?.stop();
+    this.clipSource = null;
   }
 
   private playMusic(): void {
