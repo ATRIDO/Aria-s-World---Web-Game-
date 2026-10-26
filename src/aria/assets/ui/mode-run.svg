@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Original Aria's World icon for Dash (the run mode). Drawn in code, no third-party art. -->
+  <rect width="512" height="512" rx="96" fill="#ffd27a"/>
+  <!-- Sky and grass -->
+  <circle cx="400" cy="110" r="46" fill="#fff4c2" stroke="#5b3a47" stroke-width="10"/>
+  <path d="M0 250h512v262H0z" fill="#9fe08c"/>
+  <!-- Path in perspective -->
+  <path d="M176 512 226 250h60l50 262z" fill="#f5d59c" stroke="#5b3a47" stroke-width="10" stroke-linejoin="round"/>
+  <path d="M256 512V300" stroke="#fff" stroke-width="10" stroke-dasharray="36 28" stroke-linecap="round"/>
+  <!-- Runner -->
+  <circle cx="256" cy="200" r="52" fill="#f7c9a4" stroke="#5b3a47" stroke-width="10"/>
+  <path d="M204 186c4-42 100-42 104 0-22-18-80-18-104 0Z" fill="#6b4128" stroke="#5b3a47" stroke-width="10" stroke-linejoin="round"/>
+  <path d="M220 292h72l14 90h-100Z" fill="#ff7ab8" stroke="#5b3a47" stroke-width="10" stroke-linejoin="round"/>
+  <path d="M226 382 196 330M286 382l30-46" stroke="#5b3a47" stroke-width="16" stroke-linecap="round"/>
+  <!-- Star to collect -->
+  <path d="M410 300l12 26 28 3-21 19 6 28-25-14-25 14 6-28-21-19 28-3Z" fill="#ffcf3a" stroke="#5b3a47" stroke-width="8" stroke-linejoin="round"/>
+</svg>

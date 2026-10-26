@@ -1437,14 +1437,14 @@ body:not([data-tool='stamp']) #stamps {
 }
 
 /* Doll art colors (dress-up, its drag ghost, and games that use the dolls). */
-:is(#dress, .dress-ghost, #tug, #memory) .skin { fill: var(--skin); }
-:is(#dress, .dress-ghost, #tug, #memory) .skin-stroke { stroke: var(--skin); }
-:is(#dress, .dress-ghost, #tug, #memory) .hair { fill: var(--hair); }
-:is(#dress, .dress-ghost, #tug, #memory) .eye { fill: var(--eyes); }
-:is(#dress, .dress-ghost, #tug, #memory) .c1 { fill: var(--c1, #ff6fae); }
-:is(#dress, .dress-ghost, #tug, #memory) .c2 { fill: var(--c2, #ffffff); }
-:is(#dress, .dress-ghost, #tug, #memory) .c1-stroke { stroke: var(--c1, #ff6fae); }
-:is(#dress, .dress-ghost, #tug, #memory) .c2-stroke { stroke: var(--c2, #ffffff); }
+:is(#dress, .dress-ghost, #tug, #memory, #run).skin { fill: var(--skin); }
+:is(#dress, .dress-ghost, #tug, #memory, #run).skin-stroke { stroke: var(--skin); }
+:is(#dress, .dress-ghost, #tug, #memory, #run).hair { fill: var(--hair); }
+:is(#dress, .dress-ghost, #tug, #memory, #run).eye { fill: var(--eyes); }
+:is(#dress, .dress-ghost, #tug, #memory, #run).c1 { fill: var(--c1, #ff6fae); }
+:is(#dress, .dress-ghost, #tug, #memory, #run).c2 { fill: var(--c2, #ffffff); }
+:is(#dress, .dress-ghost, #tug, #memory, #run).c1-stroke { stroke: var(--c1, #ff6fae); }
+:is(#dress, .dress-ghost, #tug, #memory, #run).c2-stroke { stroke: var(--c2, #ffffff); }
 
 /* Something just put on bounces in. */
 .dress-doll-stage .layer.pop {
@@ -2269,6 +2269,169 @@ html.resuming body {
   height: 16px;
   background: #ff5fa8;
   clip-path: path('M8 15C3 11.5 0 8.5 0 5.2 0 2.4 2 0.5 4.4 0.5 6 0.5 7.3 1.4 8 2.7 8.7 1.4 10 0.5 11.6 0.5 14 0.5 16 2.4 16 5.2 16 8.5 13 11.5 8 15Z');
+}
+
+/* Dash (the run mode): a canvas road with the friend drawn on top as live art. */
+.run {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+
+.run-coins {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 auto;
+  padding: 6px 18px;
+  border-radius: 999px;
+  background: var(--card);
+  box-shadow: var(--shadow);
+  font-size: 1.3rem;
+  font-weight: 800;
+}
+
+.run-coins svg {
+  width: 30px;
+  height: 30px;
+  fill: #ffcf3a;
+  stroke: var(--ink);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+.run-stage {
+  position: relative;
+  margin: var(--gutter) var(--gutter) 0;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: var(--radius);
+  background: linear-gradient(#a9dcff, #e6f6ff 70%);
+  touch-action: none;
+}
+
+.run-canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.run-hero {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.run-tilt {
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 100%;
+}
+
+.run-tilt svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.run-hero.bump .run-tilt svg {
+  animation: run-wobble 0.5s ease-in-out 2;
+}
+
+@keyframes run-wobble {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-12deg);
+  }
+  75% {
+    transform: rotate(12deg);
+  }
+}
+
+.run-pick {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 16px;
+  background: rgb(255 255 255 / 0.55);
+}
+
+.run-choice {
+  position: relative;
+  flex: 0 0 auto;
+  width: 76px;
+  height: 84px;
+  padding: 4px;
+  border-radius: 18px;
+  background: var(--card);
+  box-shadow: var(--shadow);
+}
+
+.run-choice svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Friends saved in dress-up get a little heart. */
+.run-choice.saved::after {
+  content: '';
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  width: 16px;
+  height: 16px;
+  background: #ff5fa8;
+  clip-path: path('M8 15C3 11.5 0 8.5 0 5.2 0 2.4 2 0.5 4.4 0.5 6 0.5 7.3 1.4 8 2.7 8.7 1.4 10 0.5 11.6 0.5 14 0.5 16 2.4 16 5.2 16 8.5 13 11.5 8 15Z');
+}
+
+.run-controls {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  padding: var(--gutter) var(--gutter) calc(var(--gutter) + env(safe-area-inset-bottom));
+}
+
+.run-btn {
+  width: 64px;
+  height: 64px;
+  padding: 16px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: var(--shadow);
+  touch-action: manipulation;
+  transition: transform 0.1s ease-out;
+}
+
+.run-btn svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: var(--accent-ink);
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.run-btn:active {
+  transform: scale(0.92);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .run-hero.bump .run-tilt svg {
+    animation: none;
+  }
 }
 
 .tug-go {

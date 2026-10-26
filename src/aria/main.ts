@@ -12,10 +12,12 @@ import modeMemory from './assets/ui/mode-memory.webp';
 import modeSketch from './assets/ui/mode-sketch.webp';
 import modeTrace from './assets/ui/mode-trace.webp';
 import modeTug from './assets/ui/mode-tug.webp';
+import modeRun from './assets/ui/mode-run.svg';
 import type { Mode } from './pages';
 import { DressUpApp } from './dress/dressup';
 import { MatchingApp } from './match/matcher';
 import { MemoryApp } from './memory/memory';
+import { RunApp } from './run/run';
 import { TracingApp } from './trace/tracer';
 import { TugApp } from './tug/tug';
 import { consumeResume, saveResume, watchForUpdates, type Screen } from './updates';
@@ -41,6 +43,7 @@ byId<HTMLImageElement>('mode-trace-img').src = modeTrace;
 byId<HTMLImageElement>('mode-match-img').src = modeMatch;
 byId<HTMLImageElement>('mode-dress-img').src = modeDress;
 byId<HTMLImageElement>('mode-tug-img').src = modeTug;
+byId<HTMLImageElement>('mode-run-img').src = modeRun;
 byId<HTMLImageElement>('mode-memory-img').src = modeMemory;
 video.src = menuVideo;
 video.play().catch(() => {
@@ -65,6 +68,8 @@ const tugging = new TugApp(app.sound);
 const tug = byId<HTMLElement>('tug');
 const memorizing = new MemoryApp(app.sound);
 const memory = byId<HTMLElement>('memory');
+const running = new RunApp(app.sound);
+const run = byId<HTMLElement>('run');
 installTapPop();
 let ready: Promise<void> | null = null;
 
@@ -75,7 +80,7 @@ const gallery = new Gallery(
   () => void openColoring(() => app.setMode('color'), 'Getting the crayons…'),
 );
 
-type StartChoice = Mode | 'trace' | 'match' | 'dress' | 'tug' | 'memory';
+type StartChoice = Mode | 'trace' | 'match' | 'dress' | 'tug' | 'memory' | 'run';
 
 async function play(mode: StartChoice): Promise<void> {
   app.sound.unlock();
@@ -113,6 +118,13 @@ async function play(mode: StartChoice): Promise<void> {
     memory.hidden = false;
     video.pause();
     memorizing.open();
+    return;
+  }
+  if (mode === 'run') {
+    start.hidden = true;
+    run.hidden = false;
+    video.pause();
+    running.open();
     return;
   }
   await openColoring(() => app.setMode(mode), mode === 'sketch' ? 'Sharpening the crayons…' : 'Getting the crayons…');
@@ -155,7 +167,7 @@ for (const b of document.querySelectorAll<HTMLButtonElement>('.mode-card')) {
 // built for production (scripts/aria-pwa.ts). New versions apply by themselves at a
 // quiet moment, and the child comes back to the same screen, page and crayon.
 const updates = watchForUpdates({
-  busy: () => app.busy || tracing.busy || matching.busy || dressing.busy || tugging.busy || memorizing.busy,
+  busy: () => app.busy || tracing.busy || matching.busy || dressing.busy || tugging.busy || memorizing.busy || running.busy,
   onStart: () => !start.hidden,
   prepare: async () => {
     saveResume(currentScreen());
@@ -172,6 +184,7 @@ function goHome(): void {
   dressing.close();
   tugging.close();
   memorizing.close();
+  running.close();
   gallery.close();
   color.hidden = true;
   trace.hidden = true;
@@ -179,6 +192,7 @@ function goHome(): void {
   dress.hidden = true;
   tug.hidden = true;
   memory.hidden = true;
+  run.hidden = true;
   galleryScreen.hidden = true;
   start.hidden = false;
   video.play().catch(() => {});
@@ -191,6 +205,7 @@ byId<HTMLButtonElement>('match-home').addEventListener('click', goHome);
 byId<HTMLButtonElement>('dress-home').addEventListener('click', goHome);
 byId<HTMLButtonElement>('tug-home').addEventListener('click', goHome);
 byId<HTMLButtonElement>('memory-home').addEventListener('click', goHome);
+byId<HTMLButtonElement>('run-home').addEventListener('click', goHome);
 // The Gallery opens from the Color/Sketch toolbar and goes back to the picture.
 byId<HTMLButtonElement>('gallery-open').addEventListener('click', () => {
   app.sound.playPop();
@@ -213,6 +228,7 @@ function currentScreen(): Screen {
   if (!dress.hidden) return { name: 'dress' };
   if (!tug.hidden) return { name: 'tug' };
   if (!memory.hidden) return { name: 'memory' };
+  if (!run.hidden) return { name: 'run' };
   if (!galleryScreen.hidden) return { name: 'gallery', mode: app.currentMode };
   if (!color.hidden) return { name: 'color', mode: app.currentMode, view: app.viewState };
   return { name: 'start' };
@@ -241,6 +257,9 @@ if (resume && resume.name !== 'start') {
   } else if (resume.name === 'memory') {
     memory.hidden = false;
     memorizing.open();
+  } else if (resume.name === 'run') {
+    run.hidden = false;
+    running.open();
   } else {
     color.hidden = false;
     const mode = resume.mode ?? app.currentMode;
