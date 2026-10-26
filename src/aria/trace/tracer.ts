@@ -3,6 +3,7 @@ import { star, vfx } from '../vfx';
 import { Balloons } from './balloons';
 import { BASE, DESC, ITEMS, MID, TOP, layoutItem, type Category, type Pt, type TraceItem } from './glyphs';
 import { ColorField, pickColors } from './paint';
+import { VOICE_READY, clipFor } from './voice';
 
 // Tracing game: follow each stroke of a letter or number from the green dot to
 // the star. The paint follows the letter's path, not the finger, so every
@@ -32,11 +33,6 @@ const MAX_BALLOONS_PER_ROUND = 12;
 const STARS_KEY = 'arias-world:trace-stars';
 const LAST_KEY = 'arias-world:trace-last';
 const VOICE_KEY = 'arias-world:voice';
-/**
- * Spoken letter names are off for now: the browser voices sound robotic and
- * sometimes say the wrong thing. Turn back on once there are recorded sounds.
- */
-const SPEECH_ENABLED = false;
 
 interface Stroke {
   pts: Pt[];
@@ -71,6 +67,12 @@ function pointAt(st: Stroke, s: number): Pt {
   const t = (s - st.len[i - 1]) / (st.len[i] - st.len[i - 1] || 1);
   const [ax, ay] = st.pts[i - 1], [bx, by] = st.pts[i];
   return [ax + (bx - ax) * t, ay + (by - ay) * t];
+}
+
+/** How far along an unfinished letter or number the child got. */
+interface Resume {
+  current: number;
+  progress: number;
 }
 
 function readJson<T>(key: string, fallback: T): T {
@@ -124,6 +126,10 @@ export class TracingApp {
   private balloons: Balloons | null = null;
   /** Letters finished this visit (balloons come every BALLOONS_EVERY). */
   private finished = 0;
+  /** Where each unfinished letter or number was left, so going back picks it up again. */
+  private readonly saved = new Map<string, Resume>();
+  /** The progress a Reset wiped out, so it can be brought back. */
+  private undo: (Resume & { id: string }) | null = null;
 
   constructor(private readonly sound: Sound) {}
 
@@ -142,12 +148,13 @@ export class TracingApp {
   }
 
   close(): void {
+    this.leave();
     this.visible = false;
     this.tracing = null;
     clearTimeout(this.nextTimer);
     this.setCombo(0);
     this.balloons?.clear();
-    if (typeof speechSynthesis !== 'undefined') speechSynthesis.cancel();
+    this.sound.stopClip();
   }
 
   // ---------------------------------------------------------------------------
@@ -164,18 +171,16 @@ export class TracingApp {
       }));
     $('trace-prev').addEventListener('click', () => this.step(-1));
     $('trace-next').addEventListener('click', () => this.step(1));
-    $('trace-reset').addEventListener('click', () => {
-      this.sound.playPop();
-      this.openItem(this.index, false);
-    });
+    $('trace-reset').addEventListener('click', () => this.reset());
+    $('trace-undo').addEventListener('click', () => this.undoReset());
     const voiceBtn = $('trace-voice');
-    voiceBtn.hidden = !SPEECH_ENABLED;
+    voiceBtn.hidden = !VOICE_READY;
     const syncVoice = () => voiceBtn.setAttribute('aria-pressed', String(this.voice));
     voiceBtn.addEventListener('click', () => {
       this.voice = !this.voice;
       writeJson(VOICE_KEY, this.voice);
       syncVoice();
-      if (!this.voice && typeof speechSynthesis !== 'undefined') speechSynthesis.cancel();
+      if (!this.voice) this.sound.stopClip();
     });
     syncVoice();
 
@@ -191,11 +196,12 @@ export class TracingApp {
   }
 
   private setCategory(category: Category, index: number): void {
+    this.leave();
     this.category = category;
     document.querySelectorAll<HTMLButtonElement>('.trace-cats .cat').forEach((b) =>
       b.setAttribute('aria-pressed', String(b.dataset.cat === category)));
     this.renderStrip();
-    this.openItem(Math.min(Math.max(index, 0), ITEMS[category].length - 1));
+    this.show(Math.min(Math.max(index, 0), ITEMS[category].length - 1), true);
   }
 
   private renderStrip(): void {
@@ -226,28 +232,66 @@ export class TracingApp {
     return ITEMS[this.category][this.index];
   }
 
-  /** `queue` lets the "great job" finish before the next name is spoken. */
-  private openItem(index: number, speak = true, queue = false): void {
+  /** Moves on to another letter or number (the auto-advance after a finished one keeps the combo). */
+  private openItem(index: number, speak = true): void {
+    this.leave();
+    this.show(index, speak);
+  }
+
+  /** Leaving an unfinished letter (skipping ahead, picking another) keeps its progress and ends the combo. */
+  private leave(): void {
+    if (this.done) return;
+    this.setCombo(0);
+    this.saved.set(this.item.id, { current: this.current, progress: this.progress });
+  }
+
+  /** Shows a letter or number with whatever progress was saved for it. */
+  private show(index: number, speak: boolean): void {
     clearTimeout(this.nextTimer);
-    // Leaving one unfinished (skipping ahead, picking another) ends the combo.
-    if (!this.done) this.setCombo(0);
     this.index = index;
     const layout = layoutItem(this.item);
     this.strokes = layout.strokes.map(resample);
     this.box = { width: layout.width, height: layout.height };
     const colors = pickColors(this.strokes.length);
     this.field = new ColorField(this.strokes.map((st, i) => ({ ...st, color: colors[i] })), layout.width, layout.height, ROAD);
-    this.current = 0;
-    this.progress = 0;
+    const resume = this.saved.get(this.item.id);
+    this.current = resume?.current ?? 0;
+    this.progress = resume?.progress ?? 0;
+    this.lastSparkle = 0;
     this.done = false;
     this.tracing = null;
+    this.setUndo(null);
     $('trace-next').classList.remove('pulse');
     writeJson(LAST_KEY, { category: this.category, index });
     this.strip.querySelectorAll<HTMLElement>('.trace-tile').forEach((t, i) => t.setAttribute('aria-current', String(i === index)));
     const tile = this.strip.children[index] as HTMLElement | undefined;
     tile?.scrollIntoView({ block: 'nearest', inline: 'center', behavior: this.reduced ? 'auto' : 'smooth' });
     this.resize();
-    if (speak) this.say(this.item.say, queue);
+    if (speak) this.say(this.item);
+  }
+
+  /** Start this one again. Unfinished progress can be brought back with Undo. */
+  private reset(): void {
+    this.sound.playPop();
+    const { id } = this.item;
+    const wiped = !this.done && (this.current > 0 || this.progress > 0);
+    const before = { current: this.current, progress: this.progress };
+    this.saved.delete(id);
+    this.show(this.index, false);
+    if (wiped) this.setUndo({ id, ...before });
+  }
+
+  private undoReset(): void {
+    const u = this.undo;
+    if (!u || u.id !== this.item.id) return;
+    this.sound.playPop();
+    this.saved.set(u.id, { current: u.current, progress: u.progress });
+    this.show(this.index, false);
+  }
+
+  private setUndo(u: (Resume & { id: string }) | null): void {
+    this.undo = u;
+    $('trace-undo').hidden = !u;
   }
 
   private updateStarCount(): void {
@@ -267,18 +311,11 @@ export class TracingApp {
     }
   }
 
-  private say(text: string, queue = false): void {
-    if (!SPEECH_ENABLED || !this.voice || typeof speechSynthesis === 'undefined') return;
-    try {
-      if (!queue) speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(text);
-      u.lang = 'en-US';
-      u.rate = 0.85;
-      u.pitch = 1.15;
-      speechSynthesis.speak(u);
-    } catch {
-      // no voice available
-    }
+  /** Says the name of a letter or number (a recorded clip, see voice.ts). */
+  private say(item: TraceItem): void {
+    if (!this.voice) return;
+    const url = clipFor(item);
+    if (url) this.sound.playClip(url);
   }
 
   // ---------------------------------------------------------------------------
@@ -343,6 +380,8 @@ export class TracingApp {
     this.canvas.setPointerCapture(e.pointerId);
     this.tracing = e.pointerId;
     this.lastFinger = p;
+    // Tracing again moves on from a reset, so it can't be undone any more.
+    this.setUndo(null);
     this.advance(p);
   }
 
@@ -406,11 +445,7 @@ export class TracingApp {
     if (this.current < this.strokes.length - 1) {
       this.current++;
       this.progress = 0;
-      // Keep going without lifting if the next stroke starts under the finger.
-      if (this.lastFinger) {
-        const [nx, ny] = this.strokes[this.current].pts[0];
-        if (Math.hypot(this.lastFinger[0] - nx, this.lastFinger[1] - ny) > this.tolerance) this.tracing = null;
-      }
+      // The finger keeps its place, so the next stroke can be started without lifting.
       return;
     }
     this.finishItem();
@@ -422,6 +457,7 @@ export class TracingApp {
     this.tracing = null;
     const item = this.item;
     this.stars.add(item.id);
+    this.saved.delete(item.id);
     writeJson(STARS_KEY, [...this.stars]);
     this.updateStarCount();
     this.strip.querySelector(`[data-id="${item.id}"]`)?.classList.add('done');
@@ -429,7 +465,6 @@ export class TracingApp {
     vfx.confetti(60);
     vfx.burst(r.left + r.width / 2, r.top + r.height / 2, { count: 24, shape: 'star', speed: 420, size: 12, life: 0.9 });
     $('trace-next').classList.add('pulse');
-    this.say(`${item.say}! Great job!`);
     this.setCombo(this.combo + 1);
     if (++this.finished % BALLOONS_EVERY === 0) {
       this.balloons?.release(Math.min(BALLOONS_FIRST + (this.combo - 1) * BALLOONS_PER_COMBO, MAX_BALLOONS_PER_ROUND));
@@ -438,7 +473,7 @@ export class TracingApp {
     this.nextTimer = window.setTimeout(() => {
       if (!this.visible || !this.done) return;
       const items = ITEMS[this.category];
-      this.openItem((this.index + 1) % items.length, true, true);
+      this.openItem((this.index + 1) % items.length);
     }, AUTO_NEXT_MS);
   }
 
